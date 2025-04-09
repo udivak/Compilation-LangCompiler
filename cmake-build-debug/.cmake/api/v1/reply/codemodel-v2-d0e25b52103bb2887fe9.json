@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "Compilation::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Compilation-Debug-b6e7f2d76f258bbe5499.json",
+					"jsonFile" : "target-Compilation-Debug-8debe0745a69c49da349.json",
 					"name" : "Compilation",
 					"projectIndex" : 0
 				}
@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/udivak/Desktop/Software Engineering/Compilation/cmake-build-debug",
-		"source" : "/Users/udivak/Desktop/Software Engineering/Compilation"
+		"build" : "/Users/mosesberco/Compilation-LangCompiler/cmake-build-debug",
+		"source" : "/Users/mosesberco/Compilation-LangCompiler"
 	},
 	"version" : 
 	{

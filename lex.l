@@ -24,17 +24,24 @@ Rules Section: Define your tokens and patterns
 "do"            { return DO; }
 "var"           { return VAR; }
 "begin"         { return BEGIN; }
+"call"          { return CALL; }
 "end"           { return END; }
 "return"        { return RETURN; }
+"returns"       { return RETURNS; }
 "null"          { return NULL_T; }
 "and"           { return AND; }
 "or"            { return OR; }
 "not"           { return NOT; }
 "bool"          { return BOOL; }
+"TRUE"          { return TRUE; }
+"FALSE"         { return FALSE; }
 "char"          { return CHAR; }
 "int"           { return INT; }
-"real"          { return REAL; }
 "string"        { return STRING; }
+"real"          { return REAL; }
+"par[1-9][0-9]*"     { return PAR; }
+"main"          { return MAIN; }
+"type"          { return TYPE; }
 
 /* Pointer types: These can be recognized directly if written as e.g., "int*" */
 "int*"          { return INT_PTR; }
@@ -69,13 +76,16 @@ Rules Section: Define your tokens and patterns
 /* String literal: characters inside double quotes (no embedded double quotes allowed) */
 \"([^\"\n])*\" {
     yylval.stringVal = strdup(yytext);
+    if (strlen(yylval.stringVal) == 1) {
+        return CHAR_LITERAL;
+    }
     return STRING_LITERAL;
 }
 
 /* Identifier: starts with a letter and can include letters, digits, and underscores */
 [a-zA-Z][a-zA-Z0-9_]* {
     yylval.stringVal = strdup(yytext);
-    return IDENTIFIER;
+    return ID;
 }
 
 /* Operators */
@@ -104,6 +114,7 @@ Rules Section: Define your tokens and patterns
 "]"             { return RBRACKET; }
 "{"             { return LBRACE; }
 "}"             { return RBRACE; }
+":"             { return ':'; }
 
 /* Special symbol for string length (vertical bar) */
 "|"             { return '|'; }

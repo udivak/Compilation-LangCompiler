@@ -1,4 +1,10 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/x64/ninja -G Ninja -S "/Users/udivak/Desktop/Software Engineering/Compilation" -B "/Users/udivak/Desktop/Software Engineering/Compilation/cmake-build-debug"
--- Configuring done (0.1s)
+/Users/mosesberco/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S /Users/mosesberco/Compilation-LangCompiler -B /Users/mosesberco/Compilation-LangCompiler/cmake-build-debug
+-- The C compiler identification is AppleClang 16.0.0.16000026
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.7s)
 -- Generating done (0.0s)
--- Build files have been written to: /Users/udivak/Desktop/Software Engineering/Compilation/cmake-build-debug
+-- Build files have been written to: /Users/mosesberco/Compilation-LangCompiler/cmake-build-debug
