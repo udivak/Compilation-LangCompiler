@@ -44,7 +44,7 @@ void printtree(node *tree, int tabs);
 %type <node> parameters parameter
 %type <node> return_statement
 %type <node> declaration_statement assignment_statement call_statement params
-%type <node> if_statement while_statement do_statement for_statement for_header update_expression
+%type <node> if_statement while_statement do_statement for_statement for_header update_expression block_statement
 
 
 %start code
@@ -59,7 +59,7 @@ code
                 YYABORT;
             }
             printf("Parsing completed. Found 1 main function.\n");
-             printtree($1,0);
+
         }
     ;
 
@@ -93,9 +93,9 @@ function
                         mknode("return type", $7, NULL)
                         ),
                      $4),
-                mknode("body",
+                mknode("",
                     mknode("variables", $8, NULL),
-                    mknode("body", $9, NULL)
+                    $9
                     )
                 );
         }
@@ -144,15 +144,15 @@ id
     ;
 
 body
-    : BEGIN_TOKEN statements  return_statement END  { $$ = NULL; }
+    : BEGIN_TOKEN statements  return_statement END  { $$ = mknode("body", $2, $3); }
     ;
 body_main
-    : BEGIN_TOKEN statements END                    { $$ = NULL; }
+    : BEGIN_TOKEN statements END                    { $$ = $1; }
     ;
 
 statements
-    : statement  statements             { $$ = NULL; }
-    | /* empty */                       { $$ = NULL; }
+    : statement  statements             { $$ = mknode("", $1, $2); }
+    | /* empty */                       { $$ = mknode("", NULL, NULL); }
     ;
 
 parameters
@@ -179,19 +179,24 @@ parameter
     ;
 
 statement
-    : declaration_statement                 { $$ = NULL; }
-    | assignment_statement                  { $$ = NULL; }
-    | if_statement                          { $$ = NULL; }
-    | while_statement                       { $$ = NULL; }
-    | for_statement                         { $$ = NULL; }
-    | do_statement                          { $$ = NULL; }
-    | ID '=' call_statement                 { $$ = NULL; }
-    | call_statement                        { $$ = NULL; }
+    : declaration_statement                 { $$ = $1; }
+    | assignment_statement                  { $$ = $1; }
+    | if_statement                          { $$ = $1; }
+    | while_statement                       { $$ = $1; }
+    | for_statement                         { $$ = $1; }
+    | do_statement                          { $$ = $1; }
+    | ID '=' call_statement                 { $$ = $1; }
+    | call_statement                        { $$ = $1; }
+    | block_statement                       { $$ = $1; }
     ;
 
 
+block_statement
+    : BEGIN_TOKEN statements END            { $$ = mknode("block", $2, NULL); }
+    ;
+
 call_statement
-    : ID LPAREN params RPAREN SEMICOLON     { $$ = NULL; }
+    : ID LPAREN params RPAREN SEMICOLON     { $$ = mknode("call statement", mknode($1, NULL, NULL), $3); }
     ;
 
 params
@@ -204,9 +209,9 @@ params
 
 declaration_statement
     : TYPE type ':' ID SEMICOLON
-        { $$ = NULL; }
+        { $$ = mknode("declaration statement", mknode($2, NULL, NULL), mknode($4, NULL, NULL)); }
     | TYPE type ':' ID '=' expression SEMICOLON
-        { $$ = NULL; }
+        { $$ = mknode("declaration statement", mknode($2, NULL, NULL), mknode($4, $6, NULL)); }
     ;
 
 type
@@ -220,12 +225,12 @@ type
     ;
 
 bool_type
-    : FALSE                                 { $$ = NULL; }
-    | TRUE                                  { $$ = NULL; }
+    : FALSE                                 { $$ = mknode("false", NULL, NULL); }
+    | TRUE                                  { $$ = mknode("true", NULL, NULL); }
     ;
 
 assignment_statement
-    : ID '=' expression SEMICOLON                                       { $$ = NULL; }
+    : ID '=' expression SEMICOLON                                       { $$ = mknode("assignment statement", mknode($1, NULL, NULL), $3); }
     | ID LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON        { $$ = NULL; }
     | '*' ID '=' expression SEMICOLON                                   { $$ = NULL; }
     | ID '=' '&' ID                                                     { $$ = NULL; }
@@ -233,7 +238,7 @@ assignment_statement
 
 if_statement
     : IF LPAREN condition RPAREN BEGIN_TOKEN statements END
-        { $$ = NULL; }
+        { $$ = mknode("if statement", $3, $6); }
     | IF LPAREN condition RPAREN BEGIN_TOKEN statements END ELSE BEGIN_TOKEN statements END
         { $$ = NULL; }
     ;
@@ -244,21 +249,21 @@ while_statement
 
 do_statement
     : DO ':' variables BEGIN_TOKEN statements END WHILE ':' condition SEMICOLON
-        { $$ = NULL; }
+        { $$ = mknode("do statement", mknode("while info", $3, $9), $5); }
     ;
 
 for_statement
-    : FOR for_header ':' statement                                  { $$ = NULL; }
-    | FOR for_header ':' variables BEGIN_TOKEN statements END       { $$ = NULL; }
+    : FOR for_header ':' statement                                  { $$ = mknode("for statement", $2, $4); }
+    | FOR for_header ':' variables BEGIN_TOKEN statements END       { $$ = mknode("for statement", $2, $6); }
     ;
 
 for_header
     : LPAREN ID '=' expression SEMICOLON condition SEMICOLON update_expression RPAREN
-        { $$ = NULL; }
+        { $$ = mknode("for header", mknode("init", mknode($2,NULL,NULL), $4), mknode("", $6, $8)); }
     ;
 
 update_expression
-    : ID '=' expression                         { $$ = NULL; }
+    : ID '=' expression                         { $$ = mknode("update expression", mknode($1, NULL, NULL), $3); }
     ;
 expression
     : expression '+' expression                 { $$ = NULL; }
