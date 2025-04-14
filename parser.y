@@ -29,8 +29,8 @@ void printtree(node *tree, int tabs);
 %token <intVal> AND OR NOT BOOL TRUE FALSE
 %token <stringVal> DEF MAIN IF ELSE ELIF WHILE FOR DO VAR BEGIN_TOKEN CALL END RETURN RETURNS NULL_T
 %token <stringVal> REAL STRING TYPE CHAR INT
-%token <intVal> INT_LITERAL REAL_LITERAL CHAR_LITERAL STRING_LITERAL
-%token <stringVal> INT_PTR CHAR_PTR REAL_PTR ID
+%token <intVal> INT_LITERAL REAL_LITERAL CHAR_LITERAL
+%token <stringVal> INT_PTR CHAR_PTR REAL_PTR ID STRING_LITERAL
 %token <intVal> EQ NEQ GE LE GT LT
 
 %token SEMICOLON COMMA LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
@@ -65,7 +65,7 @@ code
 
 functions
     : function              { $$ = mknode("function", $1, NULL); }
-    | function functions    {$$ = mknode("functions", $2, $1);}
+    | function functions    {$$ = mknode("code", $2, $1);}
     ;
 
 function
@@ -102,40 +102,45 @@ function
     ;
 
 variables
-    : VAR var_statements        { $$ = NULL; }
+    : VAR var_statements        { $$ = $2; }
     | /* empty */               { $$ = NULL; }
     ;
 
 var_statements
-    : variable SEMICOLON var_statements { $$ = NULL; }
-    | variable SEMICOLON /* empty */    { $$ = NULL; }
+    : variable SEMICOLON var_statements { $$ = mknode("var statements", $1, $3); }
+    | variable SEMICOLON    { $$ = mknode("var statements", $1, NULL); }
     ;
 
 variable
-    : TYPE type ':' ids                 { $$ = NULL; }
-    | TYPE STRING ':' string_ids        { $$ = NULL; }
+    : TYPE type ':' ids                 { $$ = mknode("variables", $2, $4); }
+    | TYPE STRING ':' string_ids        { $$ = mknode("string variables", mknode("string", NULL, NULL), $4); }
     ;
 
 string_ids
-    : string_id ',' string_ids          { $$ = NULL; }
-    | string_id                         { $$ = NULL; }
+    : string_id ',' string_ids          { $$ = mknode("string variable", $1, $3); }
+    | string_id                         { $$ = mknode("string variable", $1, NULL); }
     ;
 
 string_id
-    : ID LBRACKET INT_LITERAL RBRACKET ':' STRING_LITERAL   { $$ = NULL; }
-    | ID LBRACKET INT_LITERAL RBRACKET  { $$ = NULL; }
+    : ID LBRACKET INT_LITERAL RBRACKET ':' STRING_LITERAL
+            { char buf[50]; // assuming INT_LITERAL is not too long
+              sprintf(buf, "%d", $3);
+              $$ = mknode($1, mknode(strdup(buf), NULL, NULL), mknode($6, NULL, NULL)); }
+    | ID LBRACKET INT_LITERAL RBRACKET
+            { char buf[50];
+              sprintf(buf, "%d", $3);
+              $$ = mknode($1, mknode(strdup(buf), NULL, NULL), NULL); }
     ;
 
 
 ids
-    : id ',' ids                        { $$ = NULL; }
-    | id                                { $$ = NULL; }
+    : id ',' ids                        { $$ = mknode("ids", $1, $3); }
+    | id                                { $$ = mknode("ids", $1, NULL); }
     ;
 
 id
-    : ID ':' expression                 { $$ = NULL; }
-    | ID                                { $$ = NULL; }
-    | expression                        { $$ = NULL; }
+    : ID ':' expression                 { $$ = mknode($1, $3, NULL); }
+    | ID                                { $$ = mknode($1, NULL, NULL); }
     ;
 
 body
@@ -307,13 +312,18 @@ int main() {
 }
 void printtree(node *tree, int tabs)
 {
-    for(int i = 0; i < tabs; i++)
-        printf("\t");
+    for (int i = 0; i < tabs; i++) {
+        if (i == tabs - 1)
+            printf("| ");
+        else
+            printf("|  ");
+    }
     printf("%s\n", tree->token);
-    if(tree->left)
-        printtree(tree->left, tabs+1);
-    if(tree->right)
-        printtree(tree->right, tabs+1);
+
+    if (tree->left)
+        printtree(tree->left, tabs + 1);
+    if (tree->right)
+        printtree(tree->right, tabs + 1);
 }
 
 

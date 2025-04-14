@@ -95,7 +95,6 @@
 
 
 .              {
-    printf("Unrecognized character: %s at line %d\n", yytext, yylineno);
     return yytext[0];
 }
 %%
