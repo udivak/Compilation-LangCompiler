@@ -34,8 +34,14 @@ void printtree(node *tree, int tabs);
 %token <intVal> EQ NEQ GE LE GT LT
 
 %token SEMICOLON COMMA LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
+%right NOT
+%right '&'
+%left OR
+%left AND
+%nonassoc EQ NEQ GE LE GT LT
 %left '+' '-'
 %left '*' '/' '%'
+
 %type <node> code functions function
 %type <node> body body_main statements statement
 %type <node> expression condition comparison_operator
@@ -99,6 +105,16 @@ function
                     )
                 );
         }
+    | DEF ID LPAREN parameters RPAREN variables body_main
+             {
+                 $$ = mknode("procedure",
+                     mknode("header",
+                            mknode("procedure name",
+                            mknode($2, NULL, NULL), $4),
+                         $6),
+                     $7
+                 );
+             }
     ;
 
 variables
@@ -114,6 +130,7 @@ var_statements
 variable
     : TYPE type ':' ids                 { $$ = mknode("variables", $2, $4); }
     | TYPE STRING ':' string_ids        { $$ = mknode("string variables", mknode("string", NULL, NULL), $4); }
+    | TYPE type '*' ':' ids                 { $$ = NULL; }
     ;
 
 string_ids
@@ -134,7 +151,7 @@ string_id
 
 
 ids
-    : id ',' ids                        { $$ = mknode("ids", $1, $3); }
+    : id COMMA ids                        { $$ = mknode("ids", $1, $3); }
     | id                                { $$ = mknode("ids", $1, NULL); }
     ;
 
@@ -151,13 +168,15 @@ body_main
     ;
 
 statements
-    : statement  statements             { $$ = mknode("", $1, $2); }
-    | /* empty */                       { $$ = mknode("", NULL, NULL); }
+    : statement statements             { $$ = mknode("", $1, $2); }
+    | /* empty */                      { $$ = mknode("", NULL, NULL); }
+    | function statements              { $$ = mknode("", $1, NULL); }
     ;
 
 parameters
     : parameter COMMA parameters        { $$ = mknode("parameters", $1, $3); }
     | parameter                         { $$ = mknode("parameters", $1, NULL); }
+    | /* empty */                       { $$ = NULL; printf("empty parameters\n"); }
     ;
 
 parameter
@@ -185,7 +204,7 @@ statement
     | while_statement                       { $$ = $1; }
     | for_statement                         { $$ = $1; }
     | do_statement                          { $$ = $1; }
-    | ID '=' call_statement                 { $$ = $1; }
+    | ID '=' CALL call_statement                 { $$ = $1; }
     | call_statement                        { $$ = $1; }
     | block_statement                       { $$ = $1; }
     ;
@@ -233,7 +252,8 @@ assignment_statement
     : ID '=' expression SEMICOLON                                       { $$ = mknode("assignment statement", mknode($1, NULL, NULL), $3); }
     | ID LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON        { $$ = NULL; }
     | '*' ID '=' expression SEMICOLON                                   { $$ = NULL; }
-    | ID '=' '&' ID                                                     { $$ = NULL; }
+    | ID '=' '&' ID SEMICOLON                                           { $$ = NULL; }
+    | ID '=' NULL_T SEMICOLON                                           { $$ = NULL; }
     ;
 
 if_statement
@@ -277,12 +297,18 @@ expression
     | STRING_LITERAL                            { $$ = NULL; }
     | ID                                        { $$ = NULL; }
     | '|' ID '|'                                { $$ = NULL; }
+    | ID LPAREN expression RPAREN               { $$ = NULL; }
+    | '-' expression                            { $$ = NULL; }
+    | '&' expression                            { $$ = NULL; }
     ;
 
 condition
     : expression comparison_operator expression         { $$ = NULL; }
-    | NOT expression                                    { $$ = NULL; }
-    | NOT bool_type                                     { $$ = NULL; }
+    | NOT condition                                     { $$ = NULL; }
+    | expression OR expression                          { $$ = NULL; }
+    | expression AND expression                         { $$ = NULL; }
+    | LPAREN condition RPAREN                           { $$ = NULL; }
+    | bool_type                                         { $$ = NULL; }
     ;
 
 comparison_operator
@@ -300,7 +326,7 @@ return_statement
             has_return = 1;
             $$ = NULL;
         }
-    | RETURNS SEMICOLON
+    | RETURNS condition SEMICOLON
         {
             has_return = 1;
             $$ = NULL;
@@ -334,6 +360,7 @@ void printtree(node *tree, int tabs)
 
 int yyerror(const char* s) {
     printf("Error: %s\n", s);
+    printf("Line %d: %s\n", yylineno, yytext);
     return 1;
 }
 

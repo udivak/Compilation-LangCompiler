@@ -78,9 +78,6 @@
 
 \"[^\"]*\" {
     yylval.stringVal = strdup(yytext);
-    if (strlen(yylval.stringVal) == 1) {
-        return CHAR_LITERAL;
-    }
     return STRING_LITERAL;
 }
 

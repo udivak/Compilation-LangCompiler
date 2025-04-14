@@ -12,21 +12,37 @@ begin
         x = 2;
     end
 end
+
+
+def temp()
+begin
+def abc()
+begin
+    x = 5;
+    end
+end
 def foo(par1 int : x, par2 int:y, par3 char:z) returns int
 var
  type int : a : mm;
+ type char*:c;
+ type int:x,z;
+ type int*:y;
  type string:b[100]:"moshe";
 begin
     a = 1;
     b = "moshe";
+    y = &x;
+    y = &z;
+    temp = t*t;
     b[5] = 'N';
     *A = 5;
     do :
     begin
         a = a + 1;
     end
+
     while: a < 10;
-    a = foo(x,y,z);
+    a = call foo(x,y,z);
     for (i=10; n>10; i=i+1):
         xx = 10;
 
