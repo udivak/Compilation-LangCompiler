@@ -164,7 +164,7 @@ body
     : BEGIN_TOKEN statements  return_statement END  { $$ = mknode("body", $2, $3); }
     ;
 body_main
-    : BEGIN_TOKEN statements END                    { $$ = $1; }
+    : BEGIN_TOKEN statements END                    { $$ = $2; }
     ;
 
 statements
@@ -176,7 +176,7 @@ statements
 parameters
     : parameter COMMA parameters        { $$ = mknode("parameters", $1, $3); }
     | parameter                         { $$ = mknode("parameters", $1, NULL); }
-    | /* empty */                       { $$ = NULL; printf("empty parameters\n"); }
+    | /* empty */                       { $$ = NULL; }
     ;
 
 parameter
@@ -204,7 +204,7 @@ statement
     | while_statement                       { $$ = $1; }
     | for_statement                         { $$ = $1; }
     | do_statement                          { $$ = $1; }
-    | ID '=' CALL call_statement                 { $$ = $1; }
+    | ID '=' CALL call_statement            { $$ = $1; }
     | call_statement                        { $$ = $1; }
     | block_statement                       { $$ = $1; }
     ;
@@ -219,11 +219,11 @@ call_statement
     ;
 
 params
-    : ID COMMA params                       { $$ = NULL; }
-    | ID                                    { $$ = NULL; }
-    | call_statement COMMA params           { $$ = NULL; }
-    | call_statement                        { $$ = NULL; }
-    |                                       { $$ = NULL; }
+    : ID COMMA params                       { $$ = mknode("params", mknode($1, NULL, NULL), $3); }
+    | ID                                    { $$ = mknode("params", mknode($1, NULL, NULL), NULL); }
+    | call_statement COMMA params           { $$ = mknode("params", $1, $3); }
+    | call_statement                        { $$ = mknode("params", $1, NULL); }
+    |                                       { $$ = mknode("params", NULL, NULL); }
     ;
 
 declaration_statement
@@ -286,16 +286,16 @@ update_expression
     : ID '=' expression                         { $$ = mknode("update expression", mknode($1, NULL, NULL), $3); }
     ;
 expression
-    : expression '+' expression                 { $$ = NULL; }
-    | expression '-' expression                 { $$ = NULL; }
-    | expression '*' expression                 { $$ = NULL; }
-    | expression '/' expression                 { $$ = NULL; }
-    | expression '%' expression                 { $$ = NULL; }
+    : expression '+' expression                 { $$ = mknode("+", $1, $3); }
+    | expression '-' expression                 { $$ = mknode("-", $1, $3); }
+    | expression '*' expression                 { $$ = mknode("*", $1, $3); }
+    | expression '/' expression                 { $$ = mknode("/", $1, $3); }
+    | expression '%' expression                 { $$ = mknode("%", $1, $3); }
     | INT_LITERAL                               { $$ = NULL; }
     | REAL_LITERAL                              { $$ = NULL; }
     | CHAR_LITERAL                              { $$ = NULL; }
     | STRING_LITERAL                            { $$ = NULL; }
-    | ID                                        { $$ = NULL; }
+    | ID                                        { $$ = mknode($1, NULL, NULL); }
     | '|' ID '|'                                { $$ = NULL; }
     | ID LPAREN expression RPAREN               { $$ = NULL; }
     | '-' expression                            { $$ = NULL; }
