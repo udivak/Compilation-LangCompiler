@@ -1,0 +1,36 @@
+def main()
+begin
+    type int:a;
+
+    x = 5;
+
+    if (x > 0)
+    begin
+        x = 1;
+    end
+     else begin
+        x = 2;
+    end
+end
+def foo(par1 int : x, par2 int:y, par3 char:z) returns int
+var
+ type int : a : mm;
+ type string:b[100]:"moshe";
+begin
+    a = 1;
+    b = "moshe";
+    b[5] = 'N';
+    *A = 5;
+    do :
+    begin
+        a = a + 1;
+    end
+    while: a < 10;
+    a = foo(x,y,z);
+    for (i=10; n>10; i=i+1):
+        xx = 10;
+
+    return aj;
+end
+
+

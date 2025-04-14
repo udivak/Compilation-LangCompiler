@@ -1,20 +1,7 @@
-%{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "y.tab.h"  /* Contains token definitions from your yacc file */
-extern int yylineno; /* Keeps track of line numbers */
-%}
-
-/* Definitions section (optional) can go here */
-
-/* For example, you might define regular expressions for common patterns */
-
-/*------------------------------------------------------------------------------
-Rules Section: Define your tokens and patterns
-------------------------------------------------------------------------------*/
 %%
-/* Keywords */
+\n             { yylineno++; }
+[ \t\r]+       { /* Skip whitespace */ }
+
 "def"           { return DEF; }
 "if"            { return IF; }
 "else"          { return ELSE; }
@@ -23,7 +10,7 @@ Rules Section: Define your tokens and patterns
 "for"           { return FOR; }
 "do"            { return DO; }
 "var"           { return VAR; }
-"begin"         { return BEGIN; }
+"begin"         { return BEGIN_TOKEN; }
 "call"          { return CALL; }
 "end"           { return END; }
 "return"        { return RETURN; }
@@ -39,73 +26,26 @@ Rules Section: Define your tokens and patterns
 "int"           { return INT; }
 "string"        { return STRING; }
 "real"          { return REAL; }
-"par[1-9][0-9]*"     { return PAR; }
 "main"          { return MAIN; }
 "type"          { return TYPE; }
+"int\\*"        { return INT_PTR; }
+"char\\*"       { return CHAR_PTR; }
+"real\\*"       { return REAL_PTR; }
 
-/* Pointer types: These can be recognized directly if written as e.g., "int*" */
-"int*"          { return INT_PTR; }
-"char*"         { return CHAR_PTR; }
-"real*"         { return REAL_PTR; }
-
-/* Literals */
-/* Hexadecimal integer literal (starts with 0x or 0X) */
-0[xX][0-9a-fA-F]+ {
-    yylval.intVal = (int) strtol(yytext, NULL, 16);
-    return INT_LITERAL;
-}
-
-/* Decimal integer literal */
-[0-9]+ {
-    yylval.intVal = atoi(yytext);
-    return INT_LITERAL;
-}
-
-/* Real literal: handles decimals and scientific notation */
-([-+]?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)?) {
-    yylval.realVal = atof(yytext);
-    return REAL_LITERAL;
-}
-
-/* Character literal: a single character enclosed in single quotes */
-\'([^\'\n])\' {
-    yylval.charVal = yytext[1];
-    return CHAR_LITERAL;
-}
-
-/* String literal: characters inside double quotes (no embedded double quotes allowed) */
-\"([^\"\n])*\" {
-    yylval.stringVal = strdup(yytext);
-    if (strlen(yylval.stringVal) == 1) {
-        return CHAR_LITERAL;
-    }
-    return STRING_LITERAL;
-}
-
-/* Identifier: starts with a letter and can include letters, digits, and underscores */
-[a-zA-Z][a-zA-Z0-9_]* {
-    yylval.stringVal = strdup(yytext);
-    return ID;
-}
-
-/* Operators */
-/* Multi-character operators first to ensure the longest match */
 "=="            { return EQ; }
 "!="            { return NEQ; }
 ">="            { return GE; }
 "<="            { return LE; }
 
-/* Single-character operators */
 ">"             { return GT; }
 "<"             { return LT; }
-"="             { return '='; }    /* Alternatively, use a defined token like ASSIGN */
-"\+"            { return '+'; }
+"="             { return '='; }
+"\\+"           { return '+'; }
 "-"             { return '-'; }
-"\*"            { return '*'; }
+"\\*"           { return '*'; }
 "/"             { return '/'; }
 "&"             { return '&'; }
 
-/* Punctuation and delimiters */
 ";"             { return SEMICOLON; }
 ","             { return COMMA; }
 "("             { return LPAREN; }
@@ -115,30 +55,47 @@ Rules Section: Define your tokens and patterns
 "{"             { return LBRACE; }
 "}"             { return RBRACE; }
 ":"             { return ':'; }
+"\\|"           { return '|'; }
 
-/* Special symbol for string length (vertical bar) */
-"|"             { return '|'; }
+0[xX][0-9a-fA-F]+ {
+    yylval.intVal = (int) strtol(yytext, NULL, 16);
+    return INT_LITERAL;
+}
+[0-9]+ {
+    yylval.intVal = atoi(yytext);
+    return INT_LITERAL;
+}
 
-/* Comments: block comments start with "#->" and end with "<-#" */
-"#->"([^<]|"<"[^-])*"<-#"    { /* Ignore the comment text */ }
+[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)? {
+    yylval.realVal = atof(yytext);
+    return REAL_LITERAL;
+}
 
-/* Whitespace: Skip spaces, tabs, and carriage returns */
-[ \t\r]+       { /* do nothing, skip whitespace */ }
+'[^'\\n]' {
+    yylval.charVal = yytext[1];
+    return CHAR_LITERAL;
+}
 
-/* Newline: Update line counter */
-\n             { yylineno++; }
+\"[^\"]*\" {
+    yylval.stringVal = strdup(yytext);
+    if (strlen(yylval.stringVal) == 1) {
+        return CHAR_LITERAL;
+    }
+    return STRING_LITERAL;
+}
 
-/* Any other character: Could be an error or simply return the character */
+[a-zA-Z][a-zA-Z0-9_]* {
+    yylval.stringVal = strdup(yytext);
+    return ID;
+}
+
+"#->"[^<]*"<-#" {
+    /* Ignore comments */
+}
+
+
 .              {
     printf("Unrecognized character: %s at line %d\n", yytext, yylineno);
     return yytext[0];
 }
-
 %%
-
-/*------------------------------------------------------------------------------
-User Code Section: Additional C code and functions
-------------------------------------------------------------------------------*/
-int yywrap(void) {
-    return 1;
-}
