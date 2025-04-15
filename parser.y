@@ -230,7 +230,7 @@ parameter
             }
 
             last_param_number = current_num;
-            $$ = mknode("parameter", mknode("param name", mknode($1,NULL,NULL), NULL), mknode("param type", mknode($2,NULL,NULL), NULL));
+            $$ = mknode("parameter", mknode("param name", mknode($1,NULL,NULL), NULL), mknode("param type", $2, NULL));
         }
     ;
 
