@@ -18,6 +18,7 @@ typedef struct node
     } node;
 node *mknode(char *token, node *left, node *right);
 void printtree(node *tree, int tabs);
+void print_ast_graphical(node* tree, const char* prefix, int is_left);
 %}
 %union {
     int intVal;
@@ -29,8 +30,8 @@ void printtree(node *tree, int tabs);
 %token <intVal> AND OR NOT BOOL TRUE FALSE
 %token <stringVal> DEF MAIN IF ELSE ELIF WHILE FOR DO VAR BEGIN_TOKEN CALL END RETURN RETURNS NULL_T
 %token <stringVal> REAL STRING TYPE CHAR INT
-%token <intVal> INT_LITERAL REAL_LITERAL CHAR_LITERAL
-%token <stringVal> INT_PTR CHAR_PTR REAL_PTR ID STRING_LITERAL
+%token <intVal> INT_LITERAL REAL_LITERAL
+%token <stringVal> INT_PTR CHAR_PTR REAL_PTR ID STRING_LITERAL CHAR_LITERAL
 %token <intVal> EQ NEQ GE LE GT LT
 
 %token SEMICOLON COMMA LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
@@ -64,119 +65,155 @@ code
                 yyerror("Error: missing 'main' function.");
                 YYABORT;
             }
-            printf("Parsing completed. Found 1 main function.\n");
-
+            print_ast_graphical($1, "", 1);
+            $$ = $1;
         }
     ;
 
 functions
-    : function              { $$ = mknode("function", $1, NULL); }
-    | function functions    {$$ = mknode("code", $2, $1);}
+    : function
+        { $$ = mknode("Functions", $1, NULL); }
+    | function functions
+        { $$ = mknode("Functions", $1, $2); }
     ;
 
 function
     : DEF MAIN LPAREN RPAREN body_main
         {
             main_count++;
-            if (main_count > 1) {
-                yyerror("Error: multiple 'main' functions.");
-                YYABORT;
-            }
-            printf("Main function parsed.\n");
-             $$ = mknode("main", $5, NULL);
+            if (main_count > 1) { yyerror("Error: multiple 'main' functions."); YYABORT; }
+            $$ = mknode("Main Function",
+                        mknode("main", NULL, NULL),
+                        $5);
         }
     | DEF ID LPAREN parameters RPAREN RETURNS type variables body
         {
-            if (!has_return) {
-                yyerror("Error: non-main function must contain at least one return.");
-                YYABORT;
-            }
-            has_return = 0;   // reset has_return for the next function
-            $$ = mknode("function",
-                mknode("header",
-                    mknode("type",
+            if (!has_return) { yyerror("Error: non-main function must contain at least one return."); YYABORT; }
+            has_return = 0;
+            $$ = mknode("Function",
                         mknode($2, NULL, NULL),
-                        mknode("return type", $7, NULL)
-                        ),
-                     $4),
-                mknode("",
-                    mknode("variables", $8, NULL),
-                    $9
-                    )
-                );
+                        mknode("FunctionBody",
+                            mknode("Parameters", $4, NULL),
+                            mknode("Body", mknode("Variables", $7, NULL), $8)
+                        ));
         }
     | DEF ID LPAREN parameters RPAREN variables body_main
-             {
-                 $$ = mknode("procedure",
-                     mknode("header",
-                            mknode("procedure name",
-                            mknode($2, NULL, NULL), $4),
-                         $6),
-                     $7
-                 );
-             }
-    ;
+            {
+                $$ = mknode("Function",
+                            mknode($2, NULL, NULL),
+                            mknode("BodyMain",
+                                mknode("Variables", $6, NULL),
+                                $7
+                            ));
+                $$ = $1;
+            }
+        ;
+
 
 variables
-    : VAR var_statements        { $$ = $2; }
-    | /* empty */               { $$ = NULL; }
+    : VAR var_statements { $$ = $2; }
+    | /* empty */        { $$ = NULL; }
     ;
 
 var_statements
-    : variable SEMICOLON var_statements { $$ = mknode("var statements", $1, $3); }
-    | variable SEMICOLON    { $$ = mknode("var statements", $1, NULL); }
+    : variable SEMICOLON var_statements
+        { $$ = mknode("VarDecls", $1, $3); }
+    | variable SEMICOLON
+        { $$ = mknode("VarDecls", $1, NULL); }
     ;
 
+
 variable
-    : TYPE type ':' ids                 { $$ = mknode("variables", $2, $4); }
-    | TYPE STRING ':' string_ids        { $$ = mknode("string variables", mknode("string", NULL, NULL), $4); }
-    | TYPE type '*' ':' ids                 { $$ = NULL; }
+    : TYPE type ':' ids
+        { $$ = mknode("VarDecl", $2, $4); }
+    | TYPE STRING ':' string_ids
+        { $$ = mknode("VarDecl", mknode("Type",mknode("string",NULL,NULL),NULL), $4); }
+    | TYPE type '*' ':' ids
+        { $$ = mknode("VarDecl", mknode("PointerType", $2, NULL), $5); }
     ;
 
 string_ids
-    : string_id ',' string_ids          { $$ = mknode("string variable", $1, $3); }
-    | string_id                         { $$ = mknode("string variable", $1, NULL); }
+    : string_id ',' string_ids
+        { $$ = mknode("StringList", $1, $3); }
+    | string_id
+        { $$ = mknode("StringList", $1, NULL); }
     ;
+
 
 string_id
     : ID LBRACKET INT_LITERAL RBRACKET ':' STRING_LITERAL
-            { char buf[50]; // assuming INT_LITERAL is not too long
-              sprintf(buf, "%d", $3);
-              $$ = mknode($1, mknode(strdup(buf), NULL, NULL), mknode($6, NULL, NULL)); }
+        {
+            node *name = mknode($1, NULL, NULL);
+            char size_str[20];
+            sprintf(size_str, "%d", $3);
+
+            node *size = mknode("Size", mknode(size_str, NULL, NULL), NULL);
+            node *val  = mknode("Value", mknode($6, NULL, NULL), NULL);
+            $$ = mknode("String", name, mknode("Detail", size, val));
+        }
     | ID LBRACKET INT_LITERAL RBRACKET
-            { char buf[50];
-              sprintf(buf, "%d", $3);
-              $$ = mknode($1, mknode(strdup(buf), NULL, NULL), NULL); }
+        {
+            node *name = mknode($1, NULL, NULL);
+            char size_str[20];
+            sprintf(size_str, "%d", $3);
+            node *size = mknode("Size", mknode(size_str, NULL, NULL), NULL);
+            $$ = mknode("String", name, size);
+        }
     ;
 
 
 ids
-    : id COMMA ids                        { $$ = mknode("ids", $1, $3); }
-    | id                                { $$ = mknode("ids", $1, NULL); }
+    : id COMMA ids   { $$ = mknode("IdList", $1, $3); }
+    | id             { $$ = mknode("IdList", $1, NULL); }
     ;
 
+
 id
-    : ID ':' expression                 { $$ = mknode($1, $3, NULL); }
-    | ID                                { $$ = mknode($1, NULL, NULL); }
+    : ID ':' expression
+        { $$ = mknode($1, $3, NULL); }
+    | ID
+        { $$ = mknode($1, NULL, NULL); }
     ;
 
 body
-    : BEGIN_TOKEN statements  return_statement END  { $$ = mknode("body", $2, $3); }
+    : BEGIN_TOKEN statements return_statement END
+        { $$ = mknode("Body", $2, $3); }
     ;
+
+
 body_main
-    : BEGIN_TOKEN statements END                    { $$ = $2; }
+    : BEGIN_TOKEN statements END
+        { $$ = mknode("BodyMain", $2, NULL); }
     ;
 
 statements
-    : statement statements             { $$ = mknode("", $1, $2); }
-    | /* empty */                      { $$ = mknode("", NULL, NULL); }
-    | function statements              { $$ = mknode("", $1, NULL); }
+    : statement statements
+        {
+            $$ = mknode("statements", $1, $2);
+        }
+    | /* empty */
+        {
+            $$ = NULL;
+        }
+    | function statements
+        {
+            $$ = mknode("statements", $1, $2);
+        }
     ;
 
 parameters
-    : parameter COMMA parameters        { $$ = mknode("parameters", $1, $3); }
-    | parameter                         { $$ = mknode("parameters", $1, NULL); }
-    | /* empty */                       { $$ = NULL; }
+    : parameter COMMA parameters
+        {
+            $$ = mknode("parameters", $1, $3);
+        }
+    | parameter
+        {
+            $$ = mknode("parameters", $1, NULL);
+        }
+    | /* empty */
+        {
+            $$ = NULL;
+        }
     ;
 
 parameter
@@ -193,7 +230,7 @@ parameter
             }
 
             last_param_number = current_num;
-            $$ = mknode("parameter", mknode($1, $2, NULL), mknode($4, NULL, NULL));
+            $$ = mknode("parameter", mknode("param name", mknode($1,NULL,NULL), NULL), mknode("param type", mknode($2,NULL,NULL), NULL));
         }
     ;
 
@@ -204,11 +241,10 @@ statement
     | while_statement                       { $$ = $1; }
     | for_statement                         { $$ = $1; }
     | do_statement                          { $$ = $1; }
-    | ID '=' CALL call_statement            { $$ = $1; }
+    | ID '=' CALL call_statement            { $$ = mknode("function assign", mknode($1, NULL, NULL), $4); }
     | call_statement                        { $$ = $1; }
     | block_statement                       { $$ = $1; }
     ;
-
 
 block_statement
     : BEGIN_TOKEN statements END            { $$ = mknode("block", $2, NULL); }
@@ -243,95 +279,133 @@ type
     | REAL_PTR                              { $$ = mknode("real_ptr", NULL, NULL); }
     ;
 
-bool_type
-    : FALSE                                 { $$ = mknode("false", NULL, NULL); }
-    | TRUE                                  { $$ = mknode("true", NULL, NULL); }
+assignment_statement
+    : ID '=' expression SEMICOLON
+        { $$ = mknode("Assign", mknode($1, NULL, NULL), $3); }
+    | ID LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON
+        { $$ = mknode("ArrayAssign", mknode($1, $3, NULL), mknode($6, NULL, NULL)); }
+    | '*' ID '=' expression SEMICOLON
+        { $$ = mknode("PointerAssign", mknode($2, NULL, NULL), $4); }
+    | ID '=' '&' ID SEMICOLON
+        { $$ = mknode("RefAssign", mknode($1, NULL, NULL), mknode($4, NULL, NULL)); }
+    | ID '=' NULL_T SEMICOLON
+        { $$ = mknode("NullAssign", mknode($1, NULL, NULL), mknode("null", NULL, NULL)); }
+    | ID LBRACKET expression RBRACKET '=' INT_LITERAL SEMICOLON
+        {
+            char int_str[20];  // Buffer for the integer to string conversion
+            sprintf(int_str, "%d", $6);  // Convert integer to string
+            $$ = mknode("ArrayAssign", mknode($1, $3, NULL), mknode(int_str, NULL, NULL));
+        }
     ;
 
-assignment_statement
-    : ID '=' expression SEMICOLON                                       { $$ = mknode("assignment statement", mknode($1, NULL, NULL), $3); }
-    | ID LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON        { $$ = NULL; }
-    | '*' ID '=' expression SEMICOLON                                   { $$ = NULL; }
-    | ID '=' '&' ID SEMICOLON                                           { $$ = NULL; }
-    | ID '=' NULL_T SEMICOLON                                           { $$ = NULL; }
-    ;
 
 if_statement
     : IF LPAREN condition RPAREN BEGIN_TOKEN statements END
-        { $$ = mknode("if statement", $3, $6); }
+        { $$ = mknode("IfStmt", $3, $6); }
     | IF LPAREN condition RPAREN BEGIN_TOKEN statements END ELSE BEGIN_TOKEN statements END
-        { $$ = NULL; }
+        { $$ = mknode("IfElseStmt", $3, mknode("Branches", $6, $10)); }
     ;
 
 while_statement
     : WHILE condition ':' variables BEGIN_TOKEN statements END
-        { $$ = NULL; }
+        { $$ = mknode("WhileStmt", $2, $6); }
+    ;
 
 do_statement
     : DO ':' variables BEGIN_TOKEN statements END WHILE ':' condition SEMICOLON
-        { $$ = mknode("do statement", mknode("while info", $3, $9), $5); }
+        { $$ = mknode("DoStmt", $5, $9); }
     ;
 
 for_statement
-    : FOR for_header ':' statement                                  { $$ = mknode("for statement", $2, $4); }
-    | FOR for_header ':' variables BEGIN_TOKEN statements END       { $$ = mknode("for statement", $2, $6); }
+    : FOR for_header ':' statement
+        { $$ = mknode("ForStmt", $2, $4); }
+    | FOR for_header ':' variables BEGIN_TOKEN statements END
+        { $$ = mknode("ForStmt", $2, $6); }
     ;
 
 for_header
     : LPAREN ID '=' expression SEMICOLON condition SEMICOLON update_expression RPAREN
-        { $$ = mknode("for header", mknode("init", mknode($2,NULL,NULL), $4), mknode("", $6, $8)); }
+        { $$ = mknode("ForHeader", mknode("Init", mknode($2, NULL, NULL), $4), mknode("Loop", $6, $8)); }
     ;
 
 update_expression
-    : ID '=' expression                         { $$ = mknode("update expression", mknode($1, NULL, NULL), $3); }
-    ;
-expression
-    : expression '+' expression                 { $$ = mknode("+", $1, $3); }
-    | expression '-' expression                 { $$ = mknode("-", $1, $3); }
-    | expression '*' expression                 { $$ = mknode("*", $1, $3); }
-    | expression '/' expression                 { $$ = mknode("/", $1, $3); }
-    | expression '%' expression                 { $$ = mknode("%", $1, $3); }
-    | INT_LITERAL                               { $$ = NULL; }
-    | REAL_LITERAL                              { $$ = NULL; }
-    | CHAR_LITERAL                              { $$ = NULL; }
-    | STRING_LITERAL                            { $$ = NULL; }
-    | ID                                        { $$ = mknode($1, NULL, NULL); }
-    | '|' ID '|'                                { $$ = NULL; }
-    | ID LPAREN expression RPAREN               { $$ = NULL; }
-    | '-' expression                            { $$ = NULL; }
-    | '&' expression                            { $$ = NULL; }
+    : ID '=' expression
+        { $$ = mknode("Update", mknode($1, NULL, NULL), $3); }
     ;
 
+expression
+    : INT_LITERAL                           {
+        char int_str[20];  // Buffer for the integer to string conversion
+        sprintf(int_str, "%d", $1);  // Convert integer to string
+        $$ = mknode(int_str, NULL, NULL);
+    }
+    | REAL_LITERAL                          {
+        char real_str[40];  // Buffer for the float to string conversion
+        sprintf(real_str, "%d", $1);  // Convert float to string
+        $$ = mknode(real_str, NULL, NULL);
+    }
+    | CHAR_LITERAL                          {
+        char char_str[2];  // Buffer for the char to string conversion
+        sprintf(char_str, "%s", $1);  // Convert char to string
+        $$ = mknode(char_str, NULL, NULL);
+    }
+    | STRING_LITERAL                        {
+        $$ = mknode($1, NULL, NULL);  // STRING_LITERAL is already a string, so no conversion needed
+    }
+    | ID                                    {
+        $$ = mknode($1, NULL, NULL);
+    }
+    | expression '+' expression             { $$ = mknode("+", $1, $3); }
+    | expression '-' expression             { $$ = mknode("-", $1, $3); }
+    | expression '*' expression             { $$ = mknode("*", $1, $3); }
+    | expression '/' expression             { $$ = mknode("/", $1, $3); }
+    | expression '%' expression             { $$ = mknode("%", $1, $3); }
+    | '-' expression                        { $$ = mknode("neg", $2, NULL); }
+    | '&' expression                        { $$ = mknode("ref", $2, NULL); }
+    | ID LPAREN params RPAREN               { $$ = mknode("call_expr", mknode($1, NULL, NULL), $3); }
+    ;
+
+
+
 condition
-    : expression comparison_operator expression         { $$ = NULL; }
-    | NOT condition                                     { $$ = NULL; }
-    | expression OR expression                          { $$ = NULL; }
-    | expression AND expression                         { $$ = NULL; }
-    | LPAREN condition RPAREN                           { $$ = NULL; }
-    | bool_type                                         { $$ = NULL; }
+    : expression comparison_operator expression
+        { $$ = mknode($2, $1, $3); }
+    | NOT condition
+        { $$ = mknode("Not", $2, NULL); }
+    | expression OR expression
+        { $$ = mknode("Or", $1, $3); }
+    | expression AND expression
+        { $$ = mknode("And", $1, $3); }
+    | LPAREN condition RPAREN
+        { $$ = $2; }
+    | bool_type
+        { $$ = $1; }
+    ;
+
+
+
+bool_type
+    : FALSE { $$ = mknode("false", NULL, NULL); }
+    | TRUE  { $$ = mknode("true", NULL, NULL); }
     ;
 
 comparison_operator
-    : EQ                                        {}
-    | NEQ                                       {}
-    | GT                                        {}
-    | GE                                        {}
-    | LT                                        {}
-    | LE                                        {}
+    : EQ  { $$ = mknode("==", NULL, NULL); }
+    | NEQ { $$ = mknode("!=", NULL, NULL); }
+    | GT  { $$ = mknode(">", NULL, NULL); }
+    | GE  { $$ = mknode(">=", NULL, NULL); }
+    | LT  { $$ = mknode("<", NULL, NULL); }
+    | LE  { $$ = mknode("<=", NULL, NULL); }
     ;
+
 
 return_statement
     : RETURN expression SEMICOLON
-        {
-            has_return = 1;
-            $$ = NULL;
-        }
+        { has_return = 1; $$ = mknode("Return", $2, NULL); }
     | RETURNS condition SEMICOLON
-        {
-            has_return = 1;
-            $$ = NULL;
-        }
+        { has_return = 1; $$ = mknode("Return", $2, NULL); }
     ;
+
 
 %%
 
@@ -356,6 +430,28 @@ void printtree(node *tree, int tabs)
     if (tree->right)
         printtree(tree->right, tabs + 1);
 }
+void print_ast_graphical(node* tree, const char* prefix, int is_left) {
+    if (!tree) return;
+
+    // הדפסת הטוקן עם הסימנים הגרפיים
+    printf("%s", prefix);
+    printf(is_left ? "├── " : "└── ");
+    printf("%s\n", tree->token);
+
+    // בניית prefix חדש לילדים
+    char new_prefix[1024];
+    snprintf(new_prefix, sizeof(new_prefix), "%s%s", prefix, is_left ? "│   " : "    ");
+
+    if (tree->left && tree->right) {
+        print_ast_graphical(tree->left, new_prefix, 1);   // שמאל
+        print_ast_graphical(tree->right, new_prefix, 0);  // ימין
+    } else if (tree->left) {
+        print_ast_graphical(tree->left, new_prefix, 0);
+    } else if (tree->right) {
+        print_ast_graphical(tree->right, new_prefix, 0);
+    }
+}
+
 
 
 int yyerror(const char* s) {
