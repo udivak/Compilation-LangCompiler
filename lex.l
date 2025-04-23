@@ -26,7 +26,7 @@
 "int"           { return INT; }
 "string"        { return STRING; }
 "real"          { return REAL; }
-"main"          { return MAIN; }
+"_main_"        { return MAIN; }
 "type"          { return TYPE; }
 "int\\*"        { return INT_PTR; }
 "char\\*"       { return CHAR_PTR; }
@@ -54,22 +54,33 @@
 "]"             { return RBRACKET; }
 "{"             { return LBRACE; }
 "}"             { return RBRACE; }
-":"             { return ':'; }
+":"             { return COLON; }
 "\\|"           { return '|'; }
+
+
+[+-]?([0-9]*\.[0-9]*|\.[0-9]+|[0-9]+\.)[eE][-+]?[0-9]+ {
+    yylval.realVal = atof(yytext);
+    return REAL_LITERAL;
+}
+
+[+-]?([0-9]+\.[0-9]*|\.[0-9]+|[0-9]+\.) {
+    yylval.realVal = atof(yytext);
+    return REAL_LITERAL;
+}
+
 
 0[xX][0-9a-fA-F]+ {
     yylval.intVal = (int) strtol(yytext, NULL, 16);
     return INT_LITERAL;
 }
+
 [0-9]+ {
     yylval.intVal = atoi(yytext);
     return INT_LITERAL;
 }
 
-[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)? {
-    yylval.realVal = atof(yytext);
-    return REAL_LITERAL;
-}
+
+
 
 '[^'\\n]' {
     yylval.charVal = yytext[1];
