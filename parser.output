@@ -1,0 +1,2994 @@
+Terminals which are not used
+
+   LBRACE
+   RBRACE
+   '%'
+
+
+State 163 conflicts: 1 shift/reduce
+State 175 conflicts: 1 shift/reduce
+State 189 conflicts: 1 shift/reduce
+State 225 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: code $end
+
+    1 code: functions
+
+    2 functions: function
+    3          | function functions
+
+    4 function: DEF MAIN LPAREN RPAREN COLON variables body_main
+    5         | DEF ID LPAREN reset_param_counter parameters RPAREN COLON RETURNS type variables body
+    6         | DEF ID LPAREN reset_param_counter parameters RPAREN COLON variables body_main
+
+    7 reset_param_counter: /* empty */
+
+    8 variables: VAR var_statements
+    9          | /* empty */
+
+   10 var_statements: variable SEMICOLON var_statements
+   11               | variable SEMICOLON
+
+   12 variable: TYPE type COLON ids
+   13         | TYPE STRING COLON string_ids
+   14         | TYPE type '*' COLON ids
+
+   15 string_ids: string_id ',' string_ids
+   16           | string_id
+
+   17 string_id: ID LBRACKET INT_LITERAL RBRACKET COLON STRING_LITERAL
+   18          | ID LBRACKET INT_LITERAL RBRACKET
+
+   19 ids: id COMMA ids
+   20    | id
+
+   21 id: ID COLON expression
+   22   | ID
+
+   23 body: BEGIN_TOKEN statements return_statement END
+
+   24 body_main: BEGIN_TOKEN statements END
+
+   25 statements: statement statements
+   26           | /* empty */
+   27           | function statements
+
+   28 parameters: parameter SEMICOLON parameters
+   29           | parameter
+   30           | /* empty */
+
+   31 parameter: ID type COLON ID
+
+   32 statement: block_statement
+   33          | declaration_statement
+   34          | assignment_statement
+   35          | if_statement
+   36          | while_statement
+   37          | for_statement
+   38          | do_statement
+   39          | ID '=' CALL call_statement
+   40          | call_statement
+
+   41 block_statement: variables BEGIN_TOKEN statements END
+
+   42 call_statement: ID LPAREN params RPAREN SEMICOLON
+
+   43 params: expression COMMA params
+   44       | expression
+   45       | /* empty */
+
+   46 declaration_statement: TYPE type COLON ID SEMICOLON
+   47                      | TYPE type COLON ID '=' expression SEMICOLON
+
+   48 type: BOOL
+   49     | TRUE
+   50     | FALSE
+   51     | CHAR
+   52     | INT
+   53     | REAL
+   54     | INT_PTR
+   55     | CHAR_PTR
+   56     | REAL_PTR
+
+   57 assignment_statement: ID '=' expression SEMICOLON
+   58                     | ID LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON
+   59                     | '*' ID '=' expression SEMICOLON
+   60                     | ID '=' '&' ID SEMICOLON
+   61                     | ID '=' NULL_T SEMICOLON
+   62                     | ID LBRACKET expression RBRACKET '=' INT_LITERAL SEMICOLON
+
+   63 if_statement: IF condition COLON statement elif_statements ELSE statement
+   64             | IF condition COLON statement elif_statements
+   65             | IF condition COLON statement
+
+   66 elif_statements: ELIF condition COLON statement elif_statements
+   67                | ELIF condition COLON statement
+
+   68 while_statement: WHILE condition COLON variables BEGIN_TOKEN statements END
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements END WHILE COLON condition SEMICOLON
+
+   70 for_statement: FOR for_header COLON statement
+
+   71 for_header: LPAREN ID '=' expression SEMICOLON condition SEMICOLON update_expression RPAREN
+
+   72 update_expression: ID '=' expression
+
+   73 expression: INT_LITERAL
+   74           | REAL_LITERAL
+   75           | CHAR_LITERAL
+   76           | STRING_LITERAL
+   77           | ID
+   78           | expression '+' expression
+   79           | expression '-' expression
+   80           | expression '*' expression
+   81           | expression '/' expression
+   82           | '-' expression
+   83           | '&' expression
+   84           | ID LPAREN params RPAREN
+   85           | ID LBRACKET expression RBRACKET
+   86           | '*' LPAREN expression RPAREN
+   87           | '|' expression '|'
+
+   88 condition: expression comparison_operator expression
+   89          | NOT condition
+   90          | boolean_expression
+   91          | bool_type
+
+   92 boolean_expression: expression AND expression
+   93                   | expression OR expression
+
+   94 bool_type: FALSE
+   95          | TRUE
+   96          | LPAREN FALSE RPAREN
+   97          | LPAREN TRUE RPAREN
+
+   98 comparison_operator: EQ
+   99                    | NEQ
+  100                    | GT
+  101                    | GE
+  102                    | LT
+  103                    | LE
+
+  104 return_statement: RETURN expression SEMICOLON
+  105                 | RETURN condition SEMICOLON
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'%' (37)
+'&' (38) 60 83
+'*' (42) 14 59 80 86
+'+' (43) 78
+',' (44) 15
+'-' (45) 79 82
+'/' (47) 81
+'=' (61) 39 47 57 58 59 60 61 62 71 72
+'|' (124) 87
+error (256)
+AND (258) 92
+OR (259) 93
+NOT (260) 89
+BOOL (261) 48
+TRUE (262) 49 95 97
+FALSE (263) 50 94 96
+DEF (264) 4 5 6
+MAIN (265) 4
+IF (266) 63 64 65
+ELSE (267) 63
+ELIF (268) 66 67
+WHILE (269) 68 69
+FOR (270) 70
+DO (271) 69
+VAR (272) 8
+BEGIN_TOKEN (273) 23 24 41 68 69
+CALL (274) 39
+END (275) 23 24 41 68 69
+RETURN (276) 104 105
+RETURNS (277) 5
+NULL_T (278) 61
+REAL (279) 53
+STRING (280) 13
+TYPE (281) 12 13 14 46 47
+CHAR (282) 51
+INT (283) 52
+INT_LITERAL (284) 17 18 62 73
+REAL_LITERAL (285) 74
+INT_PTR (286) 54
+CHAR_PTR (287) 55
+REAL_PTR (288) 56
+ID (289) 5 6 17 18 21 22 31 39 42 46 47 57 58 59 60 61 62 71 72 77
+    84 85
+STRING_LITERAL (290) 17 76
+CHAR_LITERAL (291) 58 75
+EQ (292) 98
+NEQ (293) 99
+GE (294) 101
+LE (295) 103
+GT (296) 100
+LT (297) 102
+SEMICOLON (298) 10 11 28 42 46 47 57 58 59 60 61 62 69 71 104 105
+COMMA (299) 19 43
+LPAREN (300) 4 5 6 42 71 84 86 96 97
+RPAREN (301) 4 5 6 42 71 84 86 96 97
+LBRACKET (302) 17 18 58 62 85
+RBRACKET (303) 17 18 58 62 85
+LBRACE (304)
+RBRACE (305)
+COLON (306) 4 5 6 12 13 14 17 21 31 46 47 63 64 65 66 67 68 69 70
+LOWER_THAN_ELSE (307)
+
+
+Nonterminals, with rules where they appear
+
+$accept (62)
+    on left: 0
+code (63)
+    on left: 1, on right: 0
+functions (64)
+    on left: 2 3, on right: 1 3
+function (65)
+    on left: 4 5 6, on right: 2 3 27
+reset_param_counter (66)
+    on left: 7, on right: 5 6
+variables (67)
+    on left: 8 9, on right: 4 5 6 41 68 69
+var_statements (68)
+    on left: 10 11, on right: 8 10
+variable (69)
+    on left: 12 13 14, on right: 10 11
+string_ids (70)
+    on left: 15 16, on right: 13 15
+string_id (71)
+    on left: 17 18, on right: 15 16
+ids (72)
+    on left: 19 20, on right: 12 14 19
+id (73)
+    on left: 21 22, on right: 19 20
+body (74)
+    on left: 23, on right: 5
+body_main (75)
+    on left: 24, on right: 4 6
+statements (76)
+    on left: 25 26 27, on right: 23 24 25 27 41 68 69
+parameters (77)
+    on left: 28 29 30, on right: 5 6 28
+parameter (78)
+    on left: 31, on right: 28 29
+statement (79)
+    on left: 32 33 34 35 36 37 38 39 40, on right: 25 63 64 65 66 67
+    70
+block_statement (80)
+    on left: 41, on right: 32
+call_statement (81)
+    on left: 42, on right: 39 40
+params (82)
+    on left: 43 44 45, on right: 42 43 84
+declaration_statement (83)
+    on left: 46 47, on right: 33
+type (84)
+    on left: 48 49 50 51 52 53 54 55 56, on right: 5 12 14 31 46 47
+assignment_statement (85)
+    on left: 57 58 59 60 61 62, on right: 34
+if_statement (86)
+    on left: 63 64 65, on right: 35
+elif_statements (87)
+    on left: 66 67, on right: 63 64 66
+while_statement (88)
+    on left: 68, on right: 36
+do_statement (89)
+    on left: 69, on right: 38
+for_statement (90)
+    on left: 70, on right: 37
+for_header (91)
+    on left: 71, on right: 70
+update_expression (92)
+    on left: 72, on right: 71
+expression (93)
+    on left: 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87,
+    on right: 21 43 44 47 57 58 59 62 71 72 78 79 80 81 82 83 85 86
+    87 88 92 93 104
+condition (94)
+    on left: 88 89 90 91, on right: 63 64 65 66 67 68 69 71 89 105
+boolean_expression (95)
+    on left: 92 93, on right: 90
+bool_type (96)
+    on left: 94 95 96 97, on right: 91
+comparison_operator (97)
+    on left: 98 99 100 101 102 103, on right: 88
+return_statement (98)
+    on left: 104 105, on right: 23
+
+
+state 0
+
+    0 $accept: . code $end
+
+    DEF  shift, and go to state 1
+
+    code       go to state 2
+    functions  go to state 3
+    function   go to state 4
+
+
+state 1
+
+    4 function: DEF . MAIN LPAREN RPAREN COLON variables body_main
+    5         | DEF . ID LPAREN reset_param_counter parameters RPAREN COLON RETURNS type variables body
+    6         | DEF . ID LPAREN reset_param_counter parameters RPAREN COLON variables body_main
+
+    MAIN  shift, and go to state 5
+    ID    shift, and go to state 6
+
+
+state 2
+
+    0 $accept: code . $end
+
+    $end  shift, and go to state 7
+
+
+state 3
+
+    1 code: functions .
+
+    $default  reduce using rule 1 (code)
+
+
+state 4
+
+    2 functions: function .
+    3          | function . functions
+
+    DEF  shift, and go to state 1
+
+    $default  reduce using rule 2 (functions)
+
+    functions  go to state 8
+    function   go to state 4
+
+
+state 5
+
+    4 function: DEF MAIN . LPAREN RPAREN COLON variables body_main
+
+    LPAREN  shift, and go to state 9
+
+
+state 6
+
+    5 function: DEF ID . LPAREN reset_param_counter parameters RPAREN COLON RETURNS type variables body
+    6         | DEF ID . LPAREN reset_param_counter parameters RPAREN COLON variables body_main
+
+    LPAREN  shift, and go to state 10
+
+
+state 7
+
+    0 $accept: code $end .
+
+    $default  accept
+
+
+state 8
+
+    3 functions: function functions .
+
+    $default  reduce using rule 3 (functions)
+
+
+state 9
+
+    4 function: DEF MAIN LPAREN . RPAREN COLON variables body_main
+
+    RPAREN  shift, and go to state 11
+
+
+state 10
+
+    5 function: DEF ID LPAREN . reset_param_counter parameters RPAREN COLON RETURNS type variables body
+    6         | DEF ID LPAREN . reset_param_counter parameters RPAREN COLON variables body_main
+
+    $default  reduce using rule 7 (reset_param_counter)
+
+    reset_param_counter  go to state 12
+
+
+state 11
+
+    4 function: DEF MAIN LPAREN RPAREN . COLON variables body_main
+
+    COLON  shift, and go to state 13
+
+
+state 12
+
+    5 function: DEF ID LPAREN reset_param_counter . parameters RPAREN COLON RETURNS type variables body
+    6         | DEF ID LPAREN reset_param_counter . parameters RPAREN COLON variables body_main
+
+    ID  shift, and go to state 14
+
+    $default  reduce using rule 30 (parameters)
+
+    parameters  go to state 15
+    parameter   go to state 16
+
+
+state 13
+
+    4 function: DEF MAIN LPAREN RPAREN COLON . variables body_main
+
+    VAR  shift, and go to state 17
+
+    $default  reduce using rule 9 (variables)
+
+    variables  go to state 18
+
+
+state 14
+
+   31 parameter: ID . type COLON ID
+
+    BOOL      shift, and go to state 19
+    TRUE      shift, and go to state 20
+    FALSE     shift, and go to state 21
+    REAL      shift, and go to state 22
+    CHAR      shift, and go to state 23
+    INT       shift, and go to state 24
+    INT_PTR   shift, and go to state 25
+    CHAR_PTR  shift, and go to state 26
+    REAL_PTR  shift, and go to state 27
+
+    type  go to state 28
+
+
+state 15
+
+    5 function: DEF ID LPAREN reset_param_counter parameters . RPAREN COLON RETURNS type variables body
+    6         | DEF ID LPAREN reset_param_counter parameters . RPAREN COLON variables body_main
+
+    RPAREN  shift, and go to state 29
+
+
+state 16
+
+   28 parameters: parameter . SEMICOLON parameters
+   29           | parameter .
+
+    SEMICOLON  shift, and go to state 30
+
+    $default  reduce using rule 29 (parameters)
+
+
+state 17
+
+    8 variables: VAR . var_statements
+
+    TYPE  shift, and go to state 31
+
+    var_statements  go to state 32
+    variable        go to state 33
+
+
+state 18
+
+    4 function: DEF MAIN LPAREN RPAREN COLON variables . body_main
+
+    BEGIN_TOKEN  shift, and go to state 34
+
+    body_main  go to state 35
+
+
+state 19
+
+   48 type: BOOL .
+
+    $default  reduce using rule 48 (type)
+
+
+state 20
+
+   49 type: TRUE .
+
+    $default  reduce using rule 49 (type)
+
+
+state 21
+
+   50 type: FALSE .
+
+    $default  reduce using rule 50 (type)
+
+
+state 22
+
+   53 type: REAL .
+
+    $default  reduce using rule 53 (type)
+
+
+state 23
+
+   51 type: CHAR .
+
+    $default  reduce using rule 51 (type)
+
+
+state 24
+
+   52 type: INT .
+
+    $default  reduce using rule 52 (type)
+
+
+state 25
+
+   54 type: INT_PTR .
+
+    $default  reduce using rule 54 (type)
+
+
+state 26
+
+   55 type: CHAR_PTR .
+
+    $default  reduce using rule 55 (type)
+
+
+state 27
+
+   56 type: REAL_PTR .
+
+    $default  reduce using rule 56 (type)
+
+
+state 28
+
+   31 parameter: ID type . COLON ID
+
+    COLON  shift, and go to state 36
+
+
+state 29
+
+    5 function: DEF ID LPAREN reset_param_counter parameters RPAREN . COLON RETURNS type variables body
+    6         | DEF ID LPAREN reset_param_counter parameters RPAREN . COLON variables body_main
+
+    COLON  shift, and go to state 37
+
+
+state 30
+
+   28 parameters: parameter SEMICOLON . parameters
+
+    ID  shift, and go to state 14
+
+    $default  reduce using rule 30 (parameters)
+
+    parameters  go to state 38
+    parameter   go to state 16
+
+
+state 31
+
+   12 variable: TYPE . type COLON ids
+   13         | TYPE . STRING COLON string_ids
+   14         | TYPE . type '*' COLON ids
+
+    BOOL      shift, and go to state 19
+    TRUE      shift, and go to state 20
+    FALSE     shift, and go to state 21
+    REAL      shift, and go to state 22
+    STRING    shift, and go to state 39
+    CHAR      shift, and go to state 23
+    INT       shift, and go to state 24
+    INT_PTR   shift, and go to state 25
+    CHAR_PTR  shift, and go to state 26
+    REAL_PTR  shift, and go to state 27
+
+    type  go to state 40
+
+
+state 32
+
+    8 variables: VAR var_statements .
+
+    $default  reduce using rule 8 (variables)
+
+
+state 33
+
+   10 var_statements: variable . SEMICOLON var_statements
+   11               | variable . SEMICOLON
+
+    SEMICOLON  shift, and go to state 41
+
+
+state 34
+
+   24 body_main: BEGIN_TOKEN . statements END
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    END       reduce using rule 26 (statements)
+    $default  reduce using rule 9 (variables)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 51
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 35
+
+    4 function: DEF MAIN LPAREN RPAREN COLON variables body_main .
+
+    $default  reduce using rule 4 (function)
+
+
+state 36
+
+   31 parameter: ID type COLON . ID
+
+    ID  shift, and go to state 61
+
+
+state 37
+
+    5 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON . RETURNS type variables body
+    6         | DEF ID LPAREN reset_param_counter parameters RPAREN COLON . variables body_main
+
+    VAR      shift, and go to state 17
+    RETURNS  shift, and go to state 62
+
+    $default  reduce using rule 9 (variables)
+
+    variables  go to state 63
+
+
+state 38
+
+   28 parameters: parameter SEMICOLON parameters .
+
+    $default  reduce using rule 28 (parameters)
+
+
+state 39
+
+   13 variable: TYPE STRING . COLON string_ids
+
+    COLON  shift, and go to state 64
+
+
+state 40
+
+   12 variable: TYPE type . COLON ids
+   14         | TYPE type . '*' COLON ids
+
+    COLON  shift, and go to state 65
+    '*'    shift, and go to state 66
+
+
+state 41
+
+   10 var_statements: variable SEMICOLON . var_statements
+   11               | variable SEMICOLON .
+
+    TYPE  shift, and go to state 31
+
+    $default  reduce using rule 11 (var_statements)
+
+    var_statements  go to state 67
+    variable        go to state 33
+
+
+state 42
+
+   63 if_statement: IF . condition COLON statement elif_statements ELSE statement
+   64             | IF . condition COLON statement elif_statements
+   65             | IF . condition COLON statement
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 81
+    condition           go to state 82
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 43
+
+   68 while_statement: WHILE . condition COLON variables BEGIN_TOKEN statements END
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 81
+    condition           go to state 85
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 44
+
+   70 for_statement: FOR . for_header COLON statement
+
+    LPAREN  shift, and go to state 86
+
+    for_header  go to state 87
+
+
+state 45
+
+   69 do_statement: DO . COLON variables BEGIN_TOKEN statements END WHILE COLON condition SEMICOLON
+
+    COLON  shift, and go to state 88
+
+
+state 46
+
+   46 declaration_statement: TYPE . type COLON ID SEMICOLON
+   47                      | TYPE . type COLON ID '=' expression SEMICOLON
+
+    BOOL      shift, and go to state 19
+    TRUE      shift, and go to state 20
+    FALSE     shift, and go to state 21
+    REAL      shift, and go to state 22
+    CHAR      shift, and go to state 23
+    INT       shift, and go to state 24
+    INT_PTR   shift, and go to state 25
+    CHAR_PTR  shift, and go to state 26
+    REAL_PTR  shift, and go to state 27
+
+    type  go to state 89
+
+
+state 47
+
+   39 statement: ID . '=' CALL call_statement
+   42 call_statement: ID . LPAREN params RPAREN SEMICOLON
+   57 assignment_statement: ID . '=' expression SEMICOLON
+   58                     | ID . LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON
+   60                     | ID . '=' '&' ID SEMICOLON
+   61                     | ID . '=' NULL_T SEMICOLON
+   62                     | ID . LBRACKET expression RBRACKET '=' INT_LITERAL SEMICOLON
+
+    LPAREN    shift, and go to state 90
+    LBRACKET  shift, and go to state 91
+    '='       shift, and go to state 92
+
+
+state 48
+
+   59 assignment_statement: '*' . ID '=' expression SEMICOLON
+
+    ID  shift, and go to state 93
+
+
+state 49
+
+   27 statements: function . statements
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    BEGIN_TOKEN  reduce using rule 9 (variables)
+    $default     reduce using rule 26 (statements)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 94
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 50
+
+   41 block_statement: variables . BEGIN_TOKEN statements END
+
+    BEGIN_TOKEN  shift, and go to state 95
+
+
+state 51
+
+   24 body_main: BEGIN_TOKEN statements . END
+
+    END  shift, and go to state 96
+
+
+state 52
+
+   25 statements: statement . statements
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    BEGIN_TOKEN  reduce using rule 9 (variables)
+    $default     reduce using rule 26 (statements)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 97
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 53
+
+   32 statement: block_statement .
+
+    $default  reduce using rule 32 (statement)
+
+
+state 54
+
+   40 statement: call_statement .
+
+    $default  reduce using rule 40 (statement)
+
+
+state 55
+
+   33 statement: declaration_statement .
+
+    $default  reduce using rule 33 (statement)
+
+
+state 56
+
+   34 statement: assignment_statement .
+
+    $default  reduce using rule 34 (statement)
+
+
+state 57
+
+   35 statement: if_statement .
+
+    $default  reduce using rule 35 (statement)
+
+
+state 58
+
+   36 statement: while_statement .
+
+    $default  reduce using rule 36 (statement)
+
+
+state 59
+
+   38 statement: do_statement .
+
+    $default  reduce using rule 38 (statement)
+
+
+state 60
+
+   37 statement: for_statement .
+
+    $default  reduce using rule 37 (statement)
+
+
+state 61
+
+   31 parameter: ID type COLON ID .
+
+    $default  reduce using rule 31 (parameter)
+
+
+state 62
+
+    5 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON RETURNS . type variables body
+
+    BOOL      shift, and go to state 19
+    TRUE      shift, and go to state 20
+    FALSE     shift, and go to state 21
+    REAL      shift, and go to state 22
+    CHAR      shift, and go to state 23
+    INT       shift, and go to state 24
+    INT_PTR   shift, and go to state 25
+    CHAR_PTR  shift, and go to state 26
+    REAL_PTR  shift, and go to state 27
+
+    type  go to state 98
+
+
+state 63
+
+    6 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON variables . body_main
+
+    BEGIN_TOKEN  shift, and go to state 34
+
+    body_main  go to state 99
+
+
+state 64
+
+   13 variable: TYPE STRING COLON . string_ids
+
+    ID  shift, and go to state 100
+
+    string_ids  go to state 101
+    string_id   go to state 102
+
+
+state 65
+
+   12 variable: TYPE type COLON . ids
+
+    ID  shift, and go to state 103
+
+    ids  go to state 104
+    id   go to state 105
+
+
+state 66
+
+   14 variable: TYPE type '*' . COLON ids
+
+    COLON  shift, and go to state 106
+
+
+state 67
+
+   10 var_statements: variable SEMICOLON var_statements .
+
+    $default  reduce using rule 10 (var_statements)
+
+
+state 68
+
+   89 condition: NOT . condition
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 81
+    condition           go to state 107
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 69
+
+   95 bool_type: TRUE .
+
+    $default  reduce using rule 95 (bool_type)
+
+
+state 70
+
+   94 bool_type: FALSE .
+
+    $default  reduce using rule 94 (bool_type)
+
+
+state 71
+
+   73 expression: INT_LITERAL .
+
+    $default  reduce using rule 73 (expression)
+
+
+state 72
+
+   74 expression: REAL_LITERAL .
+
+    $default  reduce using rule 74 (expression)
+
+
+state 73
+
+   77 expression: ID .
+   84           | ID . LPAREN params RPAREN
+   85           | ID . LBRACKET expression RBRACKET
+
+    LPAREN    shift, and go to state 108
+    LBRACKET  shift, and go to state 109
+
+    $default  reduce using rule 77 (expression)
+
+
+state 74
+
+   76 expression: STRING_LITERAL .
+
+    $default  reduce using rule 76 (expression)
+
+
+state 75
+
+   75 expression: CHAR_LITERAL .
+
+    $default  reduce using rule 75 (expression)
+
+
+state 76
+
+   96 bool_type: LPAREN . FALSE RPAREN
+   97          | LPAREN . TRUE RPAREN
+
+    TRUE   shift, and go to state 110
+    FALSE  shift, and go to state 111
+
+
+state 77
+
+   83 expression: '&' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 112
+
+
+state 78
+
+   82 expression: '-' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 113
+
+
+state 79
+
+   86 expression: '*' . LPAREN expression RPAREN
+
+    LPAREN  shift, and go to state 114
+
+
+state 80
+
+   87 expression: '|' . expression '|'
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 115
+
+
+state 81
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   88 condition: expression . comparison_operator expression
+   92 boolean_expression: expression . AND expression
+   93                   | expression . OR expression
+
+    AND  shift, and go to state 116
+    OR   shift, and go to state 117
+    EQ   shift, and go to state 118
+    NEQ  shift, and go to state 119
+    GE   shift, and go to state 120
+    LE   shift, and go to state 121
+    GT   shift, and go to state 122
+    LT   shift, and go to state 123
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    comparison_operator  go to state 128
+
+
+state 82
+
+   63 if_statement: IF condition . COLON statement elif_statements ELSE statement
+   64             | IF condition . COLON statement elif_statements
+   65             | IF condition . COLON statement
+
+    COLON  shift, and go to state 129
+
+
+state 83
+
+   90 condition: boolean_expression .
+
+    $default  reduce using rule 90 (condition)
+
+
+state 84
+
+   91 condition: bool_type .
+
+    $default  reduce using rule 91 (condition)
+
+
+state 85
+
+   68 while_statement: WHILE condition . COLON variables BEGIN_TOKEN statements END
+
+    COLON  shift, and go to state 130
+
+
+state 86
+
+   71 for_header: LPAREN . ID '=' expression SEMICOLON condition SEMICOLON update_expression RPAREN
+
+    ID  shift, and go to state 131
+
+
+state 87
+
+   70 for_statement: FOR for_header . COLON statement
+
+    COLON  shift, and go to state 132
+
+
+state 88
+
+   69 do_statement: DO COLON . variables BEGIN_TOKEN statements END WHILE COLON condition SEMICOLON
+
+    VAR  shift, and go to state 17
+
+    $default  reduce using rule 9 (variables)
+
+    variables  go to state 133
+
+
+state 89
+
+   46 declaration_statement: TYPE type . COLON ID SEMICOLON
+   47                      | TYPE type . COLON ID '=' expression SEMICOLON
+
+    COLON  shift, and go to state 134
+
+
+state 90
+
+   42 call_statement: ID LPAREN . params RPAREN SEMICOLON
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    $default  reduce using rule 45 (params)
+
+    params      go to state 135
+    expression  go to state 136
+
+
+state 91
+
+   58 assignment_statement: ID LBRACKET . expression RBRACKET '=' CHAR_LITERAL SEMICOLON
+   62                     | ID LBRACKET . expression RBRACKET '=' INT_LITERAL SEMICOLON
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 137
+
+
+state 92
+
+   39 statement: ID '=' . CALL call_statement
+   57 assignment_statement: ID '=' . expression SEMICOLON
+   60                     | ID '=' . '&' ID SEMICOLON
+   61                     | ID '=' . NULL_T SEMICOLON
+
+    CALL            shift, and go to state 138
+    NULL_T          shift, and go to state 139
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 140
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 141
+
+
+state 93
+
+   59 assignment_statement: '*' ID . '=' expression SEMICOLON
+
+    '='  shift, and go to state 142
+
+
+state 94
+
+   27 statements: function statements .
+
+    $default  reduce using rule 27 (statements)
+
+
+state 95
+
+   41 block_statement: variables BEGIN_TOKEN . statements END
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    END       reduce using rule 26 (statements)
+    $default  reduce using rule 9 (variables)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 143
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 96
+
+   24 body_main: BEGIN_TOKEN statements END .
+
+    $default  reduce using rule 24 (body_main)
+
+
+state 97
+
+   25 statements: statement statements .
+
+    $default  reduce using rule 25 (statements)
+
+
+state 98
+
+    5 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON RETURNS type . variables body
+
+    VAR  shift, and go to state 17
+
+    $default  reduce using rule 9 (variables)
+
+    variables  go to state 144
+
+
+state 99
+
+    6 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON variables body_main .
+
+    $default  reduce using rule 6 (function)
+
+
+state 100
+
+   17 string_id: ID . LBRACKET INT_LITERAL RBRACKET COLON STRING_LITERAL
+   18          | ID . LBRACKET INT_LITERAL RBRACKET
+
+    LBRACKET  shift, and go to state 145
+
+
+state 101
+
+   13 variable: TYPE STRING COLON string_ids .
+
+    $default  reduce using rule 13 (variable)
+
+
+state 102
+
+   15 string_ids: string_id . ',' string_ids
+   16           | string_id .
+
+    ','  shift, and go to state 146
+
+    $default  reduce using rule 16 (string_ids)
+
+
+state 103
+
+   21 id: ID . COLON expression
+   22   | ID .
+
+    COLON  shift, and go to state 147
+
+    $default  reduce using rule 22 (id)
+
+
+state 104
+
+   12 variable: TYPE type COLON ids .
+
+    $default  reduce using rule 12 (variable)
+
+
+state 105
+
+   19 ids: id . COMMA ids
+   20    | id .
+
+    COMMA  shift, and go to state 148
+
+    $default  reduce using rule 20 (ids)
+
+
+state 106
+
+   14 variable: TYPE type '*' COLON . ids
+
+    ID  shift, and go to state 103
+
+    ids  go to state 149
+    id   go to state 105
+
+
+state 107
+
+   89 condition: NOT condition .
+
+    $default  reduce using rule 89 (condition)
+
+
+state 108
+
+   84 expression: ID LPAREN . params RPAREN
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    $default  reduce using rule 45 (params)
+
+    params      go to state 150
+    expression  go to state 136
+
+
+state 109
+
+   85 expression: ID LBRACKET . expression RBRACKET
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 151
+
+
+state 110
+
+   97 bool_type: LPAREN TRUE . RPAREN
+
+    RPAREN  shift, and go to state 152
+
+
+state 111
+
+   96 bool_type: LPAREN FALSE . RPAREN
+
+    RPAREN  shift, and go to state 153
+
+
+state 112
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   83           | '&' expression .
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 83 (expression)
+
+
+state 113
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   82           | '-' expression .
+
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 82 (expression)
+
+
+state 114
+
+   86 expression: '*' LPAREN . expression RPAREN
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 154
+
+
+state 115
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   87           | '|' expression . '|'
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+    '|'  shift, and go to state 155
+
+
+state 116
+
+   92 boolean_expression: expression AND . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 156
+
+
+state 117
+
+   93 boolean_expression: expression OR . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 157
+
+
+state 118
+
+   98 comparison_operator: EQ .
+
+    $default  reduce using rule 98 (comparison_operator)
+
+
+state 119
+
+   99 comparison_operator: NEQ .
+
+    $default  reduce using rule 99 (comparison_operator)
+
+
+state 120
+
+  101 comparison_operator: GE .
+
+    $default  reduce using rule 101 (comparison_operator)
+
+
+state 121
+
+  103 comparison_operator: LE .
+
+    $default  reduce using rule 103 (comparison_operator)
+
+
+state 122
+
+  100 comparison_operator: GT .
+
+    $default  reduce using rule 100 (comparison_operator)
+
+
+state 123
+
+  102 comparison_operator: LT .
+
+    $default  reduce using rule 102 (comparison_operator)
+
+
+state 124
+
+   78 expression: expression '+' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 158
+
+
+state 125
+
+   79 expression: expression '-' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 159
+
+
+state 126
+
+   80 expression: expression '*' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 160
+
+
+state 127
+
+   81 expression: expression '/' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 161
+
+
+state 128
+
+   88 condition: expression comparison_operator . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 162
+
+
+state 129
+
+   63 if_statement: IF condition COLON . statement elif_statements ELSE statement
+   64             | IF condition COLON . statement elif_statements
+   65             | IF condition COLON . statement
+
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    $default  reduce using rule 9 (variables)
+
+    variables              go to state 50
+    statement              go to state 163
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 130
+
+   68 while_statement: WHILE condition COLON . variables BEGIN_TOKEN statements END
+
+    VAR  shift, and go to state 17
+
+    $default  reduce using rule 9 (variables)
+
+    variables  go to state 164
+
+
+state 131
+
+   71 for_header: LPAREN ID . '=' expression SEMICOLON condition SEMICOLON update_expression RPAREN
+
+    '='  shift, and go to state 165
+
+
+state 132
+
+   70 for_statement: FOR for_header COLON . statement
+
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    $default  reduce using rule 9 (variables)
+
+    variables              go to state 50
+    statement              go to state 166
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 133
+
+   69 do_statement: DO COLON variables . BEGIN_TOKEN statements END WHILE COLON condition SEMICOLON
+
+    BEGIN_TOKEN  shift, and go to state 167
+
+
+state 134
+
+   46 declaration_statement: TYPE type COLON . ID SEMICOLON
+   47                      | TYPE type COLON . ID '=' expression SEMICOLON
+
+    ID  shift, and go to state 168
+
+
+state 135
+
+   42 call_statement: ID LPAREN params . RPAREN SEMICOLON
+
+    RPAREN  shift, and go to state 169
+
+
+state 136
+
+   43 params: expression . COMMA params
+   44       | expression .
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    COMMA  shift, and go to state 170
+    '+'    shift, and go to state 124
+    '-'    shift, and go to state 125
+    '*'    shift, and go to state 126
+    '/'    shift, and go to state 127
+
+    $default  reduce using rule 44 (params)
+
+
+state 137
+
+   58 assignment_statement: ID LBRACKET expression . RBRACKET '=' CHAR_LITERAL SEMICOLON
+   62                     | ID LBRACKET expression . RBRACKET '=' INT_LITERAL SEMICOLON
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    RBRACKET  shift, and go to state 171
+    '+'       shift, and go to state 124
+    '-'       shift, and go to state 125
+    '*'       shift, and go to state 126
+    '/'       shift, and go to state 127
+
+
+state 138
+
+   39 statement: ID '=' CALL . call_statement
+
+    ID  shift, and go to state 172
+
+    call_statement  go to state 173
+
+
+state 139
+
+   61 assignment_statement: ID '=' NULL_T . SEMICOLON
+
+    SEMICOLON  shift, and go to state 174
+
+
+state 140
+
+   60 assignment_statement: ID '=' '&' . ID SEMICOLON
+   83 expression: '&' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 175
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 112
+
+
+state 141
+
+   57 assignment_statement: ID '=' expression . SEMICOLON
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    SEMICOLON  shift, and go to state 176
+    '+'        shift, and go to state 124
+    '-'        shift, and go to state 125
+    '*'        shift, and go to state 126
+    '/'        shift, and go to state 127
+
+
+state 142
+
+   59 assignment_statement: '*' ID '=' . expression SEMICOLON
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 177
+
+
+state 143
+
+   41 block_statement: variables BEGIN_TOKEN statements . END
+
+    END  shift, and go to state 178
+
+
+state 144
+
+    5 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON RETURNS type variables . body
+
+    BEGIN_TOKEN  shift, and go to state 179
+
+    body  go to state 180
+
+
+state 145
+
+   17 string_id: ID LBRACKET . INT_LITERAL RBRACKET COLON STRING_LITERAL
+   18          | ID LBRACKET . INT_LITERAL RBRACKET
+
+    INT_LITERAL  shift, and go to state 181
+
+
+state 146
+
+   15 string_ids: string_id ',' . string_ids
+
+    ID  shift, and go to state 100
+
+    string_ids  go to state 182
+    string_id   go to state 102
+
+
+state 147
+
+   21 id: ID COLON . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 183
+
+
+state 148
+
+   19 ids: id COMMA . ids
+
+    ID  shift, and go to state 103
+
+    ids  go to state 184
+    id   go to state 105
+
+
+state 149
+
+   14 variable: TYPE type '*' COLON ids .
+
+    $default  reduce using rule 14 (variable)
+
+
+state 150
+
+   84 expression: ID LPAREN params . RPAREN
+
+    RPAREN  shift, and go to state 185
+
+
+state 151
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   85           | ID LBRACKET expression . RBRACKET
+
+    RBRACKET  shift, and go to state 186
+    '+'       shift, and go to state 124
+    '-'       shift, and go to state 125
+    '*'       shift, and go to state 126
+    '/'       shift, and go to state 127
+
+
+state 152
+
+   97 bool_type: LPAREN TRUE RPAREN .
+
+    $default  reduce using rule 97 (bool_type)
+
+
+state 153
+
+   96 bool_type: LPAREN FALSE RPAREN .
+
+    $default  reduce using rule 96 (bool_type)
+
+
+state 154
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   86           | '*' LPAREN expression . RPAREN
+
+    RPAREN  shift, and go to state 187
+    '+'     shift, and go to state 124
+    '-'     shift, and go to state 125
+    '*'     shift, and go to state 126
+    '/'     shift, and go to state 127
+
+
+state 155
+
+   87 expression: '|' expression '|' .
+
+    $default  reduce using rule 87 (expression)
+
+
+state 156
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   92 boolean_expression: expression AND expression .
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 92 (boolean_expression)
+
+
+state 157
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   93 boolean_expression: expression OR expression .
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 93 (boolean_expression)
+
+
+state 158
+
+   78 expression: expression . '+' expression
+   78           | expression '+' expression .
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 78 (expression)
+
+
+state 159
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   79           | expression '-' expression .
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 79 (expression)
+
+
+state 160
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   80           | expression '*' expression .
+   81           | expression . '/' expression
+
+    $default  reduce using rule 80 (expression)
+
+
+state 161
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   81           | expression '/' expression .
+
+    $default  reduce using rule 81 (expression)
+
+
+state 162
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   88 condition: expression comparison_operator expression .
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 88 (condition)
+
+
+state 163
+
+   63 if_statement: IF condition COLON statement . elif_statements ELSE statement
+   64             | IF condition COLON statement . elif_statements
+   65             | IF condition COLON statement .
+
+    ELIF  shift, and go to state 188
+
+    ELIF      [reduce using rule 65 (if_statement)]
+    $default  reduce using rule 65 (if_statement)
+
+    elif_statements  go to state 189
+
+
+state 164
+
+   68 while_statement: WHILE condition COLON variables . BEGIN_TOKEN statements END
+
+    BEGIN_TOKEN  shift, and go to state 190
+
+
+state 165
+
+   71 for_header: LPAREN ID '=' . expression SEMICOLON condition SEMICOLON update_expression RPAREN
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 191
+
+
+state 166
+
+   70 for_statement: FOR for_header COLON statement .
+
+    $default  reduce using rule 70 (for_statement)
+
+
+state 167
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN . statements END WHILE COLON condition SEMICOLON
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    END       reduce using rule 26 (statements)
+    $default  reduce using rule 9 (variables)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 192
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 168
+
+   46 declaration_statement: TYPE type COLON ID . SEMICOLON
+   47                      | TYPE type COLON ID . '=' expression SEMICOLON
+
+    SEMICOLON  shift, and go to state 193
+    '='        shift, and go to state 194
+
+
+state 169
+
+   42 call_statement: ID LPAREN params RPAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 195
+
+
+state 170
+
+   43 params: expression COMMA . params
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    $default  reduce using rule 45 (params)
+
+    params      go to state 196
+    expression  go to state 136
+
+
+state 171
+
+   58 assignment_statement: ID LBRACKET expression RBRACKET . '=' CHAR_LITERAL SEMICOLON
+   62                     | ID LBRACKET expression RBRACKET . '=' INT_LITERAL SEMICOLON
+
+    '='  shift, and go to state 197
+
+
+state 172
+
+   42 call_statement: ID . LPAREN params RPAREN SEMICOLON
+
+    LPAREN  shift, and go to state 90
+
+
+state 173
+
+   39 statement: ID '=' CALL call_statement .
+
+    $default  reduce using rule 39 (statement)
+
+
+state 174
+
+   61 assignment_statement: ID '=' NULL_T SEMICOLON .
+
+    $default  reduce using rule 61 (assignment_statement)
+
+
+state 175
+
+   60 assignment_statement: ID '=' '&' ID . SEMICOLON
+   77 expression: ID .
+   84           | ID . LPAREN params RPAREN
+   85           | ID . LBRACKET expression RBRACKET
+
+    SEMICOLON  shift, and go to state 198
+    LPAREN     shift, and go to state 108
+    LBRACKET   shift, and go to state 109
+
+    SEMICOLON  [reduce using rule 77 (expression)]
+    $default   reduce using rule 77 (expression)
+
+
+state 176
+
+   57 assignment_statement: ID '=' expression SEMICOLON .
+
+    $default  reduce using rule 57 (assignment_statement)
+
+
+state 177
+
+   59 assignment_statement: '*' ID '=' expression . SEMICOLON
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    SEMICOLON  shift, and go to state 199
+    '+'        shift, and go to state 124
+    '-'        shift, and go to state 125
+    '*'        shift, and go to state 126
+    '/'        shift, and go to state 127
+
+
+state 178
+
+   41 block_statement: variables BEGIN_TOKEN statements END .
+
+    $default  reduce using rule 41 (block_statement)
+
+
+state 179
+
+   23 body: BEGIN_TOKEN . statements return_statement END
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    RETURN    reduce using rule 26 (statements)
+    $default  reduce using rule 9 (variables)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 200
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 180
+
+    5 function: DEF ID LPAREN reset_param_counter parameters RPAREN COLON RETURNS type variables body .
+
+    $default  reduce using rule 5 (function)
+
+
+state 181
+
+   17 string_id: ID LBRACKET INT_LITERAL . RBRACKET COLON STRING_LITERAL
+   18          | ID LBRACKET INT_LITERAL . RBRACKET
+
+    RBRACKET  shift, and go to state 201
+
+
+state 182
+
+   15 string_ids: string_id ',' string_ids .
+
+    $default  reduce using rule 15 (string_ids)
+
+
+state 183
+
+   21 id: ID COLON expression .
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 21 (id)
+
+
+state 184
+
+   19 ids: id COMMA ids .
+
+    $default  reduce using rule 19 (ids)
+
+
+state 185
+
+   84 expression: ID LPAREN params RPAREN .
+
+    $default  reduce using rule 84 (expression)
+
+
+state 186
+
+   85 expression: ID LBRACKET expression RBRACKET .
+
+    $default  reduce using rule 85 (expression)
+
+
+state 187
+
+   86 expression: '*' LPAREN expression RPAREN .
+
+    $default  reduce using rule 86 (expression)
+
+
+state 188
+
+   66 elif_statements: ELIF . condition COLON statement elif_statements
+   67                | ELIF . condition COLON statement
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 81
+    condition           go to state 202
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 189
+
+   63 if_statement: IF condition COLON statement elif_statements . ELSE statement
+   64             | IF condition COLON statement elif_statements .
+
+    ELSE  shift, and go to state 203
+
+    ELSE      [reduce using rule 64 (if_statement)]
+    $default  reduce using rule 64 (if_statement)
+
+
+state 190
+
+   68 while_statement: WHILE condition COLON variables BEGIN_TOKEN . statements END
+
+    DEF    shift, and go to state 1
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    END       reduce using rule 26 (statements)
+    $default  reduce using rule 9 (variables)
+
+    function               go to state 49
+    variables              go to state 50
+    statements             go to state 204
+    statement              go to state 52
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 191
+
+   71 for_header: LPAREN ID '=' expression . SEMICOLON condition SEMICOLON update_expression RPAREN
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    SEMICOLON  shift, and go to state 205
+    '+'        shift, and go to state 124
+    '-'        shift, and go to state 125
+    '*'        shift, and go to state 126
+    '/'        shift, and go to state 127
+
+
+state 192
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements . END WHILE COLON condition SEMICOLON
+
+    END  shift, and go to state 206
+
+
+state 193
+
+   46 declaration_statement: TYPE type COLON ID SEMICOLON .
+
+    $default  reduce using rule 46 (declaration_statement)
+
+
+state 194
+
+   47 declaration_statement: TYPE type COLON ID '=' . expression SEMICOLON
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 207
+
+
+state 195
+
+   42 call_statement: ID LPAREN params RPAREN SEMICOLON .
+
+    $default  reduce using rule 42 (call_statement)
+
+
+state 196
+
+   43 params: expression COMMA params .
+
+    $default  reduce using rule 43 (params)
+
+
+state 197
+
+   58 assignment_statement: ID LBRACKET expression RBRACKET '=' . CHAR_LITERAL SEMICOLON
+   62                     | ID LBRACKET expression RBRACKET '=' . INT_LITERAL SEMICOLON
+
+    INT_LITERAL   shift, and go to state 208
+    CHAR_LITERAL  shift, and go to state 209
+
+
+state 198
+
+   60 assignment_statement: ID '=' '&' ID SEMICOLON .
+
+    $default  reduce using rule 60 (assignment_statement)
+
+
+state 199
+
+   59 assignment_statement: '*' ID '=' expression SEMICOLON .
+
+    $default  reduce using rule 59 (assignment_statement)
+
+
+state 200
+
+   23 body: BEGIN_TOKEN statements . return_statement END
+
+    RETURN  shift, and go to state 210
+
+    return_statement  go to state 211
+
+
+state 201
+
+   17 string_id: ID LBRACKET INT_LITERAL RBRACKET . COLON STRING_LITERAL
+   18          | ID LBRACKET INT_LITERAL RBRACKET .
+
+    COLON  shift, and go to state 212
+
+    $default  reduce using rule 18 (string_id)
+
+
+state 202
+
+   66 elif_statements: ELIF condition . COLON statement elif_statements
+   67                | ELIF condition . COLON statement
+
+    COLON  shift, and go to state 213
+
+
+state 203
+
+   63 if_statement: IF condition COLON statement elif_statements ELSE . statement
+
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    $default  reduce using rule 9 (variables)
+
+    variables              go to state 50
+    statement              go to state 214
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 204
+
+   68 while_statement: WHILE condition COLON variables BEGIN_TOKEN statements . END
+
+    END  shift, and go to state 215
+
+
+state 205
+
+   71 for_header: LPAREN ID '=' expression SEMICOLON . condition SEMICOLON update_expression RPAREN
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 81
+    condition           go to state 216
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 206
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements END . WHILE COLON condition SEMICOLON
+
+    WHILE  shift, and go to state 217
+
+
+state 207
+
+   47 declaration_statement: TYPE type COLON ID '=' expression . SEMICOLON
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    SEMICOLON  shift, and go to state 218
+    '+'        shift, and go to state 124
+    '-'        shift, and go to state 125
+    '*'        shift, and go to state 126
+    '/'        shift, and go to state 127
+
+
+state 208
+
+   62 assignment_statement: ID LBRACKET expression RBRACKET '=' INT_LITERAL . SEMICOLON
+
+    SEMICOLON  shift, and go to state 219
+
+
+state 209
+
+   58 assignment_statement: ID LBRACKET expression RBRACKET '=' CHAR_LITERAL . SEMICOLON
+
+    SEMICOLON  shift, and go to state 220
+
+
+state 210
+
+  104 return_statement: RETURN . expression SEMICOLON
+  105                 | RETURN . condition SEMICOLON
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 221
+    condition           go to state 222
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 211
+
+   23 body: BEGIN_TOKEN statements return_statement . END
+
+    END  shift, and go to state 223
+
+
+state 212
+
+   17 string_id: ID LBRACKET INT_LITERAL RBRACKET COLON . STRING_LITERAL
+
+    STRING_LITERAL  shift, and go to state 224
+
+
+state 213
+
+   66 elif_statements: ELIF condition COLON . statement elif_statements
+   67                | ELIF condition COLON . statement
+
+    IF     shift, and go to state 42
+    WHILE  shift, and go to state 43
+    FOR    shift, and go to state 44
+    DO     shift, and go to state 45
+    VAR    shift, and go to state 17
+    TYPE   shift, and go to state 46
+    ID     shift, and go to state 47
+    '*'    shift, and go to state 48
+
+    $default  reduce using rule 9 (variables)
+
+    variables              go to state 50
+    statement              go to state 225
+    block_statement        go to state 53
+    call_statement         go to state 54
+    declaration_statement  go to state 55
+    assignment_statement   go to state 56
+    if_statement           go to state 57
+    while_statement        go to state 58
+    do_statement           go to state 59
+    for_statement          go to state 60
+
+
+state 214
+
+   63 if_statement: IF condition COLON statement elif_statements ELSE statement .
+
+    $default  reduce using rule 63 (if_statement)
+
+
+state 215
+
+   68 while_statement: WHILE condition COLON variables BEGIN_TOKEN statements END .
+
+    $default  reduce using rule 68 (while_statement)
+
+
+state 216
+
+   71 for_header: LPAREN ID '=' expression SEMICOLON condition . SEMICOLON update_expression RPAREN
+
+    SEMICOLON  shift, and go to state 226
+
+
+state 217
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements END WHILE . COLON condition SEMICOLON
+
+    COLON  shift, and go to state 227
+
+
+state 218
+
+   47 declaration_statement: TYPE type COLON ID '=' expression SEMICOLON .
+
+    $default  reduce using rule 47 (declaration_statement)
+
+
+state 219
+
+   62 assignment_statement: ID LBRACKET expression RBRACKET '=' INT_LITERAL SEMICOLON .
+
+    $default  reduce using rule 62 (assignment_statement)
+
+
+state 220
+
+   58 assignment_statement: ID LBRACKET expression RBRACKET '=' CHAR_LITERAL SEMICOLON .
+
+    $default  reduce using rule 58 (assignment_statement)
+
+
+state 221
+
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+   88 condition: expression . comparison_operator expression
+   92 boolean_expression: expression . AND expression
+   93                   | expression . OR expression
+  104 return_statement: RETURN expression . SEMICOLON
+
+    AND        shift, and go to state 116
+    OR         shift, and go to state 117
+    EQ         shift, and go to state 118
+    NEQ        shift, and go to state 119
+    GE         shift, and go to state 120
+    LE         shift, and go to state 121
+    GT         shift, and go to state 122
+    LT         shift, and go to state 123
+    SEMICOLON  shift, and go to state 228
+    '+'        shift, and go to state 124
+    '-'        shift, and go to state 125
+    '*'        shift, and go to state 126
+    '/'        shift, and go to state 127
+
+    comparison_operator  go to state 128
+
+
+state 222
+
+  105 return_statement: RETURN condition . SEMICOLON
+
+    SEMICOLON  shift, and go to state 229
+
+
+state 223
+
+   23 body: BEGIN_TOKEN statements return_statement END .
+
+    $default  reduce using rule 23 (body)
+
+
+state 224
+
+   17 string_id: ID LBRACKET INT_LITERAL RBRACKET COLON STRING_LITERAL .
+
+    $default  reduce using rule 17 (string_id)
+
+
+state 225
+
+   66 elif_statements: ELIF condition COLON statement . elif_statements
+   67                | ELIF condition COLON statement .
+
+    ELIF  shift, and go to state 188
+
+    ELIF      [reduce using rule 67 (elif_statements)]
+    $default  reduce using rule 67 (elif_statements)
+
+    elif_statements  go to state 230
+
+
+state 226
+
+   71 for_header: LPAREN ID '=' expression SEMICOLON condition SEMICOLON . update_expression RPAREN
+
+    ID  shift, and go to state 231
+
+    update_expression  go to state 232
+
+
+state 227
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements END WHILE COLON . condition SEMICOLON
+
+    NOT             shift, and go to state 68
+    TRUE            shift, and go to state 69
+    FALSE           shift, and go to state 70
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    LPAREN          shift, and go to state 76
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression          go to state 81
+    condition           go to state 233
+    boolean_expression  go to state 83
+    bool_type           go to state 84
+
+
+state 228
+
+  104 return_statement: RETURN expression SEMICOLON .
+
+    $default  reduce using rule 104 (return_statement)
+
+
+state 229
+
+  105 return_statement: RETURN condition SEMICOLON .
+
+    $default  reduce using rule 105 (return_statement)
+
+
+state 230
+
+   66 elif_statements: ELIF condition COLON statement elif_statements .
+
+    $default  reduce using rule 66 (elif_statements)
+
+
+state 231
+
+   72 update_expression: ID . '=' expression
+
+    '='  shift, and go to state 234
+
+
+state 232
+
+   71 for_header: LPAREN ID '=' expression SEMICOLON condition SEMICOLON update_expression . RPAREN
+
+    RPAREN  shift, and go to state 235
+
+
+state 233
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements END WHILE COLON condition . SEMICOLON
+
+    SEMICOLON  shift, and go to state 236
+
+
+state 234
+
+   72 update_expression: ID '=' . expression
+
+    INT_LITERAL     shift, and go to state 71
+    REAL_LITERAL    shift, and go to state 72
+    ID              shift, and go to state 73
+    STRING_LITERAL  shift, and go to state 74
+    CHAR_LITERAL    shift, and go to state 75
+    '&'             shift, and go to state 77
+    '-'             shift, and go to state 78
+    '*'             shift, and go to state 79
+    '|'             shift, and go to state 80
+
+    expression  go to state 237
+
+
+state 235
+
+   71 for_header: LPAREN ID '=' expression SEMICOLON condition SEMICOLON update_expression RPAREN .
+
+    $default  reduce using rule 71 (for_header)
+
+
+state 236
+
+   69 do_statement: DO COLON variables BEGIN_TOKEN statements END WHILE COLON condition SEMICOLON .
+
+    $default  reduce using rule 69 (do_statement)
+
+
+state 237
+
+   72 update_expression: ID '=' expression .
+   78 expression: expression . '+' expression
+   79           | expression . '-' expression
+   80           | expression . '*' expression
+   81           | expression . '/' expression
+
+    '+'  shift, and go to state 124
+    '-'  shift, and go to state 125
+    '*'  shift, and go to state 126
+    '/'  shift, and go to state 127
+
+    $default  reduce using rule 72 (update_expression)

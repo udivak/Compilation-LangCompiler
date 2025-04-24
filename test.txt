@@ -1,52 +1,23 @@
-def main()
+def _main_():
 begin
-    type int:a;
+a = call foo(a+1,b,c);
+if (TRUE):
+begin
+X =X;
+end
+elif TRUE:
+x =x ;
 
-    x = 5;
-
-    if (x > 0)
-    begin
-        x = 1;
-    end
-     else begin
-        x = 2;
-    end
 end
 
 
-def temp()
+def foo(par1 int:x; par2 int:y; par3 int:z; par4 real:f): returns int
 begin
-def abc()
-begin
-    x = 5;
-    end
-end
-def foo(par1 int : x, par2 int:y, par3 char:z) returns int
 var
- type int : a : mm;
- type char*:c;
- type int:x,z;
- type int*:y;
- type string:b[100]:"moshe";
+type int:a;
 begin
-    a = 1;
-    b = "moshe";
-    y = &x;
-    y = &z;
-    temp = t*t;
-    b[5] = 'N';
-    *A = 5;
-    do :
-    begin
-        a = a + 1;
-    end
-
-    while: a < 10;
-    a = call foo(x,y,z);
-    for (i=10; n>10; i=i+1):
-        xx = 10;
-
-    return aj;
+a = a + 1;
 end
-
-
+x = x;
+return a;
+end
