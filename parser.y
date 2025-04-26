@@ -45,10 +45,8 @@ void print_tree(node *n);
 %left OR
 %left AND
 %nonassoc EQ NEQ GE LE GT LT
+%right ELSE
 %nonassoc LOWER_THAN_ELSE
-%nonassoc ELSE
-
-
 
 
 %left '+' '-'
@@ -56,7 +54,7 @@ void print_tree(node *n);
 
 %type <node> code functions function
 %type <node> body body_main statements statement
-%type <node> expression condition boolean_expression
+%type <node> expression condition
 %type <node> variables var_statements variable
 %type <node> string_ids string_id ids id
 %type <node> parameters parameter
@@ -64,8 +62,6 @@ void print_tree(node *n);
 %type <node> declaration_statement assignment_statement call_statement params elif_statements
 %type <node> if_statement while_statement do_statement for_statement for_header update_expression block_statement
 %type <stringVal> type comparison_operator
-
-
 
 
 
@@ -283,21 +279,20 @@ parameter
     ;
 
 statement
-    : block_statement                           { $$ = $1; }
-    | declaration_statement                     { $$ = $1; }
-    | assignment_statement                      { $$ = $1; }
-    | if_statement                              { $$ = $1; }
-    | while_statement                           { $$ = $1; }
-    | for_statement                             { $$ = $1; }
-    | do_statement                              { $$ = $1; }
-    | ID '=' CALL call_statement                { $$ = mknode("function assign", mknode($1, NULL, NULL), $4); }
-    | call_statement                            { $$ = $1; }
+    : declaration_statement                 { $$ = $1; }
+    | assignment_statement                  { $$ = $1; }
+    | if_statement                          { $$ = $1; }
+    | while_statement                       { $$ = $1; }
+    | for_statement                         { $$ = $1; }
+    | do_statement                          { $$ = $1; }
+    | ID '=' CALL call_statement            { $$ = mknode("function assign", mknode($1, NULL, NULL), $4); }
+    | call_statement                        { $$ = $1; }
+    | block_statement                       { $$ = $1; }
     ;
 
 block_statement
     :  variables BEGIN_TOKEN statements END            { $$ = mknode("block", $1, $3); }
     ;
-
 
 call_statement
     : ID LPAREN params RPAREN SEMICOLON     { $$ = mknode("call statement", mknode($1, NULL, NULL), $3); }
@@ -352,7 +347,6 @@ assignment_statement
 if_statement
     : IF condition COLON statement elif_statements ELSE statement
         {
-            // if(condition) statement elif* else statement
             node *ifBranch = mknode("IfStmt", $2, $4);
             node *elifList = $5;
             node *elseBranch = mknode("ElseBranch", $7, NULL);
@@ -361,14 +355,12 @@ if_statement
         }
     | IF condition COLON statement elif_statements
         {
-            // if(condition) statement elif*
             node *ifBranch = mknode("IfStmt", $2, $4);
             node *branches = mknode("Branches", ifBranch, $5);
             $$ = mknode("IfStmt", NULL, branches);
         }
-    | IF condition COLON statement %%prec LOWER_THAN_ELSE
+    | IF condition COLON statement %prec LOWER_THAN_ELSE
         {
-            // if(condition) statement
             node *ifBranch = mknode("IfStmt", $2, $4);
             node *branches = mknode("Branches", ifBranch, NULL);
             $$ = mknode("IfStmt", NULL, branches);
@@ -378,14 +370,12 @@ if_statement
 elif_statements
     : ELIF condition COLON statement elif_statements
         {
-            // elif(condition) statement ... (with more elifs after)
             node *this_elif = mknode("ElifStmt", $2, $4);
-            this_elif->right = $5;  // Chain the elifs
+            this_elif->right = $5;
             $$ = this_elif;
         }
     | ELIF condition COLON statement
         {
-            // Final elif(condition) statement
             $$ = mknode("ElifStmt", $2, $4);
         }
     ;
@@ -404,6 +394,8 @@ do_statement
 
 for_statement
     : FOR for_header COLON statement
+        { $$ = mknode("ForStmt", $2, $4); }
+    | FOR for_header COLON block_statement
         { $$ = mknode("ForStmt", $2, $4); }
     ;
 
@@ -465,12 +457,8 @@ expression
     | ID LBRACKET expression RBRACKET       { $$ = mknode("pointer_expr", mknode($1, NULL, NULL), $3); }
     | '*' LPAREN expression RPAREN          { $$ = $3; }
     | '|' expression '|'                    { $$ = $2; }
-    ;
-
-
-
-address_expression
-    : '&' ID  { $$ = mknode("ref", mknode($2, NULL, NULL), NULL); }
+    | expression AND expression             { $$ = mknode("and", $1, $3); }
+    | expression OR expression              { $$ = mknode("or", $1, $3); }
     ;
 
 
@@ -480,17 +468,14 @@ condition
         { $$ = mknode($2, $1, $3); }
     | NOT condition
         { $$ = mknode("Not", $2, NULL); }
-    | boolean_expression
-        { $$ = $1; }
+    | expression OR expression
+        { $$ = mknode("Or", $1, $3); }
+    | expression AND expression
+        { $$ = mknode("And", $1, $3); }
     | bool_type
         { $$ = $1; }
     ;
 
-
-boolean_expression
-    : expression AND expression         { $$ = mknode("And", $1, $3); }
-    | expression OR expression          { $$ = mknode("Or", $1, $3); }
-    ;
 
 
 bool_type
